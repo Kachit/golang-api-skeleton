@@ -20,7 +20,7 @@ type Config struct {
 		User           string
 		Password       string
 		MaxConnections int `mapstructure:"max_connections"`
-	} `mapstructure:"infrastructure"`
+	} `mapstructure:"database"`
 }
 
 func (c *Config) GetAppPort() string {

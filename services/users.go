@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/kachit/golang-api-skeleton/dto"
+	"github.com/kachit/golang-api-skeleton/models"
 )
 
 type UsersService struct {
@@ -13,8 +14,7 @@ func NewUsersService(database *sqlx.DB) *UsersService {
 	return &UsersService{Database: database}
 }
 
-func (a *UsersService) List() ([]dto.UserDTO, error) {
-	var items = make([]dto.UserDTO, 0)
-
-	return items, nil
+func (a *UsersService) GetListByFilter(filter *dto.FilterParameterQueryStringDTO) (*models.UsersCollection, error) {
+	collection := models.UsersCollection{}
+	return &collection, nil
 }

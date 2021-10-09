@@ -1,8 +1,6 @@
 package dto
 
-type UserDTO struct {
-	ID    int     `json:"id"`
+type CreateUserDTO struct {
 	Email string  `json:"email"`
 	Name  *string `json:"name"`
-	Hash  string  `json:"-"`
 }

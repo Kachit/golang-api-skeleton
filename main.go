@@ -39,6 +39,10 @@ func main() {
 	router.NoRoute(api.NotFoundHandler)
 	router.NoMethod(api.NotAllowedMethodHandler)
 
+	if !cfg.App.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	apiRoutes := router.Group("/v1")
 	{
 		users := apiRoutes.Group("/users")
