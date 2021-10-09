@@ -4,8 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/dimuska139/golang-api-skeleton/middlewares"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/kachit/golang-api-skeleton/api"
 	"log"
 	"net/http"
 	"os"
@@ -28,39 +29,26 @@ func main() {
 		fmt.Println(err)
 	}
 
-	usersApi, err := InitializeUsersAPI(db)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	authApi, err := InitializeAuthAPI(cfg, db)
+	usersApi, err := InitializeUsersResource(db)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	router := gin.Default()
-	api := router.Group("/v1")
+	router.Use(cors.Default())
+	router.NoRoute(api.NotFoundHandler)
+	router.NoMethod(api.NotAllowedMethodHandler)
+
+	apiRoutes := router.Group("/v1")
 	{
-		users := api.Group("/users")
+		users := apiRoutes.Group("/users")
 		{
-			users.GET("/total", usersApi.GetTotal)
 			users.GET("", usersApi.GetList)
-		}
-		auth := api.Group("/auth")
-		{
-			auth.POST("/refresh-tokens", authApi.RefreshTokens)
-			auth.POST("/login", authApi.Login)
-			auth.POST("/registration", authApi.Registration)
-		}
-		private := api.Group("/private") // Authentication required
-		{
-			private.Use(middlewares.JwtMiddleware(cfg))
-			private.GET("/profile", usersApi.GetProfile)
 		}
 	}
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.GetAppPort(),
 		Handler: router,
 	}
 	go func() {

@@ -4,11 +4,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 type Config struct {
-	Port     uint
+	App struct {
+		Port  uint
+		Debug bool
+	} `mapstructure:"app"`
 	Database struct {
 		Host           string
 		Port           uint16
@@ -16,12 +20,11 @@ type Config struct {
 		User           string
 		Password       string
 		MaxConnections int `mapstructure:"max_connections"`
-	} `mapstructure:"database"`
-	Jwt struct {
-		Secret               string
-		AccessTokenLifetime  int `mapstructure:"access_token_lifetime"`
-		RefreshTokenLifetime int `mapstructure:"refresh_token_lifetime"`
-	} `mapstructure:"jwt"`
+	} `mapstructure:"infrastructure"`
+}
+
+func (c *Config) GetAppPort() string {
+	return ":" + strconv.FormatUint(uint64(c.App.Port), 10)
 }
 
 func NewConfig(configPath string) (*Config, error) {

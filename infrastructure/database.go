@@ -1,13 +1,13 @@
-package database
+package infrastructure
 
 import (
-	"github.com/dimuska139/golang-api-skeleton/config"
-	_ "github.com/dimuska139/golang-api-skeleton/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/kachit/golang-api-skeleton/config"
+	_ "github.com/kachit/golang-api-skeleton/migrations"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 	"log"

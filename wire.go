@@ -3,12 +3,12 @@
 package main
 
 import (
-	"github.com/dimuska139/golang-api-skeleton/api"
-	"github.com/dimuska139/golang-api-skeleton/config"
-	"github.com/dimuska139/golang-api-skeleton/database"
-	"github.com/dimuska139/golang-api-skeleton/services"
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
+	"github.com/kachit/golang-api-skeleton/api"
+	"github.com/kachit/golang-api-skeleton/config"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
+	"github.com/kachit/golang-api-skeleton/services"
 )
 
 func InitializeConfig(configPath string) (*config.Config, error) {
@@ -17,16 +17,11 @@ func InitializeConfig(configPath string) (*config.Config, error) {
 }
 
 func InitializeDatabase(cfg *config.Config) (*sqlx.DB, error) {
-	wire.Build(database.NewDatabase)
+	wire.Build(infrastructure.NewDatabase)
 	return &sqlx.DB{}, nil
 }
 
-func InitializeUsersAPI(db *sqlx.DB) (*api.UsersAPI, error) {
-	wire.Build(services.NewUsersService, api.NewUsersAPI)
-	return &api.UsersAPI{}, nil
-}
-
-func InitializeAuthAPI(cfg *config.Config, db *sqlx.DB) (*api.AuthAPI, error) {
-	wire.Build(services.NewUsersService, services.NewAuthService, api.NewAuthAPI)
-	return &api.AuthAPI{}, nil
+func InitializeUsersResource(db *sqlx.DB) (*api.UsersResource, error) {
+	wire.Build(services.NewUsersService, api.NewUsersResource)
+	return &api.UsersResource{}, nil
 }
