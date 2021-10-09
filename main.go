@@ -48,6 +48,7 @@ func main() {
 		users := apiRoutes.Group("/users")
 		{
 			users.GET("", usersApi.GetList)
+			users.GET("/:id", usersApi.GetById)
 		}
 	}
 

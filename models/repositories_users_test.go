@@ -65,31 +65,31 @@ func Test_Models_Repositories_UsersRepository_GetList(t *testing.T) {
 	assert.Equal(t, "bar", (*collection)[0].Email)
 }
 
-//func Test_Models_Repositories_UsersRepository_Insert(t *testing.T) {
-//	sqlxDB, mock := testable.GetDatabaseMock()
-//
-//	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-//
-//	factory := NewRepositoriesFactory(sqlxDB)
-//	repository := factory.GetUsersRepository()
-//	promocode := &User{}
-//	promocode.Status = PROMOCODE_STATUS_ACTIVE
-//
-//	mock.ExpectQuery("INSERT INTO promocodes \\(code,created_at,discount,limits,link,locale,options,status,subscription_id,title,usage_limits,usage_type\\) VALUES \\(\\$1,\\$2,\\$3,\\$4,\\$5,\\$6,\\$7,\\$8,\\$9,\\$10,\\$11,\\$12\\) RETURNING id").WillReturnRows(rows)
-//	_, err := repository.Insert(promocode)
-//	assert.NoError(t, err)
-//	assert.Equal(t, uint64(1), promocode.Id)
-//}
-//
-//func Test_Models_Repositories_UsersRepository_Update(t *testing.T) {
-//	sqlxDB, mock := testable.GetDatabaseMock()
-//
-//	factory := NewRepositoriesFactory(sqlxDB)
-//	repository := factory.GetUsersRepository()
-//	mock.ExpectExec("UPDATE promocodes SET code = \\$1, discount = \\$2, limits = \\$3, link = \\$4, locale = \\$5, options = \\$6, status = \\$7, subscription_id = \\$8, title = \\$9, usage_limits = \\$10, usage_type = \\$11 WHERE id = \\$12").WillReturnResult(sqlmock.NewResult(0, 1))
-//	promocode := &User{}
-//	promocode.Id = 1
-//	promocode.Status = PROMOCODE_STATUS_ACTIVE
-//	_, err := repository.Update(promocode)
-//	assert.NoError(t, err)
-//}
+func Test_Models_Repositories_UsersRepository_Insert(t *testing.T) {
+	sqlxDB, mock := testable.GetDatabaseMock()
+
+	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+
+	factory := NewRepositoriesFactory(sqlxDB)
+	repository := factory.GetUsersRepository()
+	user := &User{}
+	user.Email = "foo@bar.baz"
+
+	mock.ExpectQuery("INSERT INTO users \\(created_at,description,email,name,password\\) VALUES \\(\\$1,\\$2,\\$3,\\$4,\\$5\\) RETURNING id").WillReturnRows(rows)
+	_, err := repository.Insert(user)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), user.Id)
+}
+
+func Test_Models_Repositories_UsersRepository_Update(t *testing.T) {
+	sqlxDB, mock := testable.GetDatabaseMock()
+
+	factory := NewRepositoriesFactory(sqlxDB)
+	repository := factory.GetUsersRepository()
+	mock.ExpectExec("UPDATE users SET created_at = \\$1, description = \\$2, email = \\$3, name = \\$4, password = \\$5 WHERE id = \\$6").WillReturnResult(sqlmock.NewResult(0, 1))
+	user := &User{}
+	user.Id = 1
+	user.Email = "foo@bar.baz"
+	_, err := repository.Update(user)
+	assert.NoError(t, err)
+}

@@ -48,6 +48,7 @@ func (pr *UsersRepository) GetByEmail(email string) (*User, error) {
 }
 
 func (pr *UsersRepository) Insert(user *User) (*User, error) {
+	user.BeforeInsert()
 	rowMap := pr.Mapper.MapForInsert(user)
 	lastInsertId, err := pr.insert(rowMap)
 	user.Id = lastInsertId

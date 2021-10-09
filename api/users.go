@@ -30,3 +30,18 @@ func (us *UsersResource) GetList(c *gin.Context) {
 	body := NewResponseBodyCollection(collection, 1)
 	c.JSON(http.StatusOK, body)
 }
+
+func (us *UsersResource) GetById(c *gin.Context) {
+	userURI := dto.IdParameterPathDTO{}
+	if err := c.ShouldBindUri(&userURI); err != nil {
+		c.JSON(http.StatusBadRequest, NewResponseBodyError(err))
+		return
+	}
+	user, err := us.UsersService.GetByID(userURI.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, NewResponseBodyError(err))
+		return
+	}
+	body := NewResponseBody(user)
+	c.JSON(http.StatusOK, body)
+}

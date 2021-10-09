@@ -6,10 +6,6 @@ type IdParameterPathDTO struct {
 	ID uint64 `uri:"id"`
 }
 
-type HashParameterPathDTO struct {
-	Code string `uri:"hash"`
-}
-
 type FilterParameterQueryStringDTO struct {
 	Limit  uint64            `form:"limit"`
 	Offset uint64            `form:"offset"`
