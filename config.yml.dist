@@ -1,0 +1,11 @@
+app:
+  port: 8080
+  debug: true
+
+database:
+  host: 127.0.0.1
+  port: 5427
+  name: exampledb
+  user: exampleuser
+  password: 12345
+  max_connections: 10

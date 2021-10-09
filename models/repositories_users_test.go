@@ -42,7 +42,7 @@ func Test_Models_Repositories_UsersRepository_GetByCode(t *testing.T) {
 
 	factory := NewRepositoriesFactory(sqlxDB)
 	repository := factory.GetUsersRepository()
-	mock.ExpectQuery("SELECT \\* FROM users WHERE code = \\$1").WithArgs("foo").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT \\* FROM users WHERE email = \\$1").WithArgs("foo").WillReturnRows(rows)
 	user, err := repository.GetByEmail("foo")
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), user.Id)
