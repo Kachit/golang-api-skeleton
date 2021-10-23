@@ -54,12 +54,19 @@ func (ra *RepositoryAbstract) fetchAll(collection interface{}, condition interfa
 	return ra.database.Select(collection, q, v...)
 }
 
-func (ra *RepositoryAbstract) fetchOne(entity interface{}, condition interface{}) error {
-	q, v, _ := ra.queryBuilder.
-		BuildSelectQuery(ra.table, "*").
-		Where(condition).
-		ToSql()
+func (ra *RepositoryAbstract) fetchOne(entity interface{}, condition interface{}, orderBy map[string]string) error {
+	qb := ra.queryBuilder.BuildSelectQuery(ra.table, "*").Where(condition)
 
+	if orderBy != nil {
+		for k, v := range orderBy {
+			qb = qb.OrderBy(k + " " + v)
+		}
+	}
+
+	q, v, err := qb.ToSql()
+	if err != nil {
+		return fmt.Errorf("RepositoryAbstract.fetchOne: %v", err)
+	}
 	return ra.database.Get(entity, q, v...)
 }
 
@@ -70,6 +77,16 @@ func (ra *RepositoryAbstract) fetchColumn(column string, condition interface{}) 
 		ToSql()
 
 	return ra.database.QueryRow(q, v...)
+}
+
+func (ra *RepositoryAbstract) count(condition interface{}) (uint64, error) {
+	row := ra.fetchColumn("COUNT(*)", condition)
+	var result uint64
+	err := row.Scan(&result)
+	if err != nil {
+		return 0, fmt.Errorf("RepositoryAbstract.Count: %v", err)
+	}
+	return result, nil
 }
 
 func (ra *RepositoryAbstract) insert(rowMap map[string]interface{}) (uint64, error) {

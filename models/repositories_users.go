@@ -31,7 +31,7 @@ func (pr *UsersRepository) Count(condition interface{}) (int64, error) {
 
 func (pr *UsersRepository) GetByID(id uint64) (*User, error) {
 	user := &User{}
-	err := pr.fetchOne(user, sq.Eq{"id": id})
+	err := pr.fetchOne(user, sq.Eq{"id": id}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("UsersRepository.GetByID: %v", err)
 	}
@@ -40,7 +40,7 @@ func (pr *UsersRepository) GetByID(id uint64) (*User, error) {
 
 func (pr *UsersRepository) GetByEmail(email string) (*User, error) {
 	user := &User{}
-	err := pr.fetchOne(user, sq.Eq{"email": email})
+	err := pr.fetchOne(user, sq.Eq{"email": email}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("UsersRepository.GetByEmail: %v", err)
 	}

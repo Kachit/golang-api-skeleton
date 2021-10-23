@@ -60,7 +60,24 @@ func Test_Models_Repositories_RepositoryAbstract_FetchOne(t *testing.T) {
 	repository := factory.GetRepositoryAbstract(TABLE_USERS)
 	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\$1").WithArgs(1).WillReturnRows(rows)
 	user := &User{}
-	err := repository.fetchOne(user, sq.Eq{"id": 1})
+	err := repository.fetchOne(user, sq.Eq{"id": 1}, nil)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), user.Id)
+	assert.Equal(t, "foo", user.Name)
+	assert.Equal(t, "bar", user.Email)
+}
+
+func Test_Models_Repositories_RepositoryAbstract_FetchOneWithOrderBy(t *testing.T) {
+	sqlxDB, mock := testable.GetDatabaseMock()
+
+	rows := sqlmock.NewRows([]string{"id", "name", "email"}).AddRow(1, "foo", "bar")
+	orderBy := map[string]string{"id": "ASC"}
+
+	factory := NewRepositoriesFactory(sqlxDB)
+	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\$1 ORDER BY id ASC").WithArgs(1).WillReturnRows(rows)
+	user := &User{}
+	err := repository.fetchOne(user, sq.Eq{"id": 1}, orderBy)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), user.Id)
 	assert.Equal(t, "foo", user.Name)
@@ -129,4 +146,17 @@ func Test_Models_Repositories_RepositoryAbstract_FetchColumn(t *testing.T) {
 	err := row.Scan(&result)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, result)
+}
+
+func Test_Models_Repositories_RepositoryAbstract_Count(t *testing.T) {
+	sqlxDB, mock := testable.GetDatabaseMock()
+
+	rows := sqlmock.NewRows([]string{"COUNT(*)"}).AddRow(1)
+
+	factory := NewRepositoriesFactory(sqlxDB)
+	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(rows)
+	result, err := repository.count(nil)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), result)
 }
