@@ -9,18 +9,22 @@ import (
 )
 
 type Config struct {
-	App struct {
-		Port  uint
-		Debug bool
-	} `mapstructure:"app"`
-	Database struct {
-		Host           string
-		Port           uint16
-		Name           string
-		User           string
-		Password       string
-		MaxConnections int `mapstructure:"max_connections"`
-	} `mapstructure:"database"`
+	App      AppConfig      `mapstructure:"app"`
+	Database DatabaseConfig `mapstructure:"database"`
+}
+
+type AppConfig struct {
+	Port  uint
+	Debug bool
+}
+
+type DatabaseConfig struct {
+	Host           string
+	Port           uint16
+	Name           string
+	User           string
+	Password       string
+	MaxConnections int `mapstructure:"max_connections"`
 }
 
 func (c *Config) GetAppPort() string {
