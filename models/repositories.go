@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	TABLE_USERS string = "users"
+	TableUsers string = "users"
 )
 
 func NewRepositoriesFactory(database *sqlx.DB) *RepositoriesFactory {
@@ -19,7 +19,7 @@ type RepositoriesFactory struct {
 }
 
 func (f *RepositoriesFactory) GetUsersRepository() *UsersRepository {
-	return &UsersRepository{RepositoryAbstract: f.GetRepositoryAbstract(TABLE_USERS), Mapper: &UserMapper{}}
+	return &UsersRepository{RepositoryAbstract: f.GetRepositoryAbstract(TableUsers), Mapper: &UserMapper{}}
 }
 
 func (f *RepositoriesFactory) GetRepositoryAbstract(table string) *RepositoryAbstract {

@@ -10,7 +10,7 @@ import (
 	"github.com/kachit/golang-api-skeleton/api"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/services"
+	"github.com/kachit/golang-api-skeleton/models"
 )
 
 // Injectors from wire.go:
@@ -31,8 +31,48 @@ func InitializeDatabase(cfg *config.Config) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func InitializeUsersResource(db *sqlx.DB) (*api.UsersResource, error) {
-	usersService := services.NewUsersService(db)
-	usersResource := api.NewUsersResource(usersService)
+func InitializeLogger(cfg *config.Config) (infrastructure.Logger, error) {
+	logger := infrastructure.NewLogger(cfg)
+	return logger, nil
+}
+
+func InitializeRepositoriesFactory(db *sqlx.DB) (*models.RepositoriesFactory, error) {
+	repositoriesFactory := models.NewRepositoriesFactory(db)
+	return repositoriesFactory, nil
+}
+
+func InitializeUsersResource(container *infrastructure.Container) (*api.UsersResource, error) {
+	usersResource := api.NewUsersResource(container)
 	return usersResource, nil
+}
+
+func InitializeErrorsResource(container *infrastructure.Container) (*api.ErrorsResource, error) {
+	errorsResource := api.NewErrorsResource(container)
+	return errorsResource, nil
+}
+
+func InitializeContainer(configPath string) (*infrastructure.Container, error) {
+	configConfig, err := InitializeConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+	logger, err := InitializeLogger(configConfig)
+	if err != nil {
+		return nil, err
+	}
+	db, err := InitializeDatabase(configConfig)
+	if err != nil {
+		return nil, err
+	}
+	repositoriesFactory, err := InitializeRepositoriesFactory(db)
+	if err != nil {
+		return nil, err
+	}
+	container := &infrastructure.Container{
+		Config: configConfig,
+		Logger: logger,
+		DB:     db,
+		RF:     repositoriesFactory,
+	}
+	return container, nil
 }

@@ -10,16 +10,16 @@ import (
 
 func Test_Models_Repositories_RepositoriesFactory_GetRepositoryAbstract(t *testing.T) {
 	factory := NewRepositoriesFactory(nil)
-	result := factory.GetRepositoryAbstract(TABLE_USERS)
+	result := factory.GetRepositoryAbstract(TableUsers)
 	assert.IsType(t, (*RepositoryAbstract)(nil), result)
-	assert.Equal(t, TABLE_USERS, result.table)
+	assert.Equal(t, TableUsers, result.table)
 }
 
 func Test_Models_Repositories_RepositoriesFactory_GetUsersRepository(t *testing.T) {
 	factory := NewRepositoriesFactory(nil)
 	result := factory.GetUsersRepository()
 	assert.IsType(t, (*UsersRepository)(nil), result)
-	assert.Equal(t, TABLE_USERS, result.table)
+	assert.Equal(t, TableUsers, result.table)
 }
 
 func Test_Models_Repositories_RepositoryAbstract_Insert(t *testing.T) {
@@ -28,7 +28,7 @@ func Test_Models_Repositories_RepositoryAbstract_Insert(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("INSERT INTO users \\(foo\\) VALUES \\(\\$1\\) RETURNING id").WillReturnRows(rows)
 	row := map[string]interface{}{
 		"foo": "bar",
@@ -41,7 +41,7 @@ func Test_Models_Repositories_RepositoryAbstract_Update(t *testing.T) {
 	sqlxDB, mock := testable.GetDatabaseMock()
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectExec("UPDATE users SET foo = \\$1 WHERE").WillReturnResult(sqlmock.NewResult(0, 1))
 	row := map[string]interface{}{
 		"foo": "bar",
@@ -57,7 +57,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchOne(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).AddRow(1, "foo", "bar")
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\$1").WithArgs(1).WillReturnRows(rows)
 	user := &User{}
 	err := repository.fetchOne(user, sq.Eq{"id": 1}, nil)
@@ -74,7 +74,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchOneWithOrderBy(t *testing.
 	orderBy := map[string]string{"id": "ASC"}
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT \\* FROM users WHERE id = \\$1 ORDER BY id ASC").WithArgs(1).WillReturnRows(rows)
 	user := &User{}
 	err := repository.fetchOne(user, sq.Eq{"id": 1}, orderBy)
@@ -90,7 +90,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchAll(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).AddRow(1, "foo", "bar")
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT \\* FROM users").WillReturnRows(rows)
 	collection := UsersCollection{}
 	err := repository.fetchAll(&collection, nil, 0, 0, nil)
@@ -106,7 +106,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchAllWithLimitOffset(t *test
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).AddRow(1, "foo", "bar")
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT \\* FROM users LIMIT 10 OFFSET 20").WillReturnRows(rows)
 	collection := UsersCollection{}
 	err := repository.fetchAll(&collection, nil, 10, 20, nil)
@@ -122,7 +122,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchAllWithOrderBy(t *testing.
 	rows := sqlmock.NewRows([]string{"id", "name", "email"}).AddRow(1, "foo", "bar")
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT \\* FROM users ORDER BY id ASC").WillReturnRows(rows)
 	collection := UsersCollection{}
 	orderBy := map[string]string{"id": "ASC"}
@@ -139,7 +139,7 @@ func Test_Models_Repositories_RepositoryAbstract_FetchColumn(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"COUNT(*)"}).AddRow(1)
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(rows)
 	row := repository.fetchColumn("COUNT(*)", nil)
 	var result int
@@ -154,7 +154,7 @@ func Test_Models_Repositories_RepositoryAbstract_Count(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"COUNT(*)"}).AddRow(1)
 
 	factory := NewRepositoriesFactory(sqlxDB)
-	repository := factory.GetRepositoryAbstract(TABLE_USERS)
+	repository := factory.GetRepositoryAbstract(TableUsers)
 	mock.ExpectQuery("SELECT COUNT\\(\\*\\) FROM users").WillReturnRows(rows)
 	result, err := repository.count(nil)
 	assert.NoError(t, err)

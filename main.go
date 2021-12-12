@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/kachit/golang-api-skeleton/api"
 	"log"
 	"net/http"
 	"os"
@@ -19,26 +17,27 @@ func main() {
 	configPathPtr := flag.String("config", "config.yml", "Path to configuration file")
 	flag.Parse()
 
-	cfg, err := InitializeConfig(*configPathPtr)
+	container, err := InitializeContainer(*configPathPtr)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	db, err := InitializeDatabase(cfg)
+	usersResource, err := InitializeUsersResource(container)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
-	usersApi, err := InitializeUsersResource(db)
+	errorsResource, err := InitializeErrorsResource(container)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	router := gin.Default()
 	router.Use(cors.Default())
-	router.NoRoute(api.NotFoundHandler)
-	router.NoMethod(api.NotAllowedMethodHandler)
+	router.NoRoute(errorsResource.NotFoundHandler)
+	router.NoMethod(errorsResource.NotAllowedMethodHandler)
 
+	cfg := container.Config
 	if !cfg.App.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -47,8 +46,8 @@ func main() {
 	{
 		users := apiRoutes.Group("/users")
 		{
-			users.GET("", usersApi.GetList)
-			users.GET("/:id", usersApi.GetById)
+			users.GET("", usersResource.GetList)
+			users.GET("/:id", usersResource.GetById)
 		}
 	}
 
