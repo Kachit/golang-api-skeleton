@@ -1,14 +1,15 @@
-version: '2'
+version: '3.9'
 
 services:
   db:
     image: postgres:latest
     ports:
-      - 5427:5432
+      - 54335:5432
+    restart: unless-stopped
     volumes:
       - ./db:/var/lib/postgresql/data/pgdata
     environment:
-      - POSTGRES_DB=exampledb
-      - POSTGRES_USER=exampleuser
+      - POSTGRES_DB=example_db
+      - POSTGRES_USER=example_user
       - POSTGRES_PASSWORD=12345
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      - PGDATA="/var/lib/postgresql/data/pgdata"
