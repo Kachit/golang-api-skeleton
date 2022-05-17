@@ -3,9 +3,10 @@ module github.com/kachit/golang-api-skeleton
 go 1.16
 
 require (
+	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-gormigrate/gormigrate/v2 v2.0.1
 	github.com/google/wire v0.5.0
-	github.com/gosimple/slug v1.12.0
 	github.com/int128/slack v1.5.0
 	github.com/jaswdr/faker v1.10.2
 	github.com/kachit/gorm-seeder v0.0.1
@@ -14,6 +15,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.1
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 	gorm.io/driver/postgres v1.3.5
 	gorm.io/gorm v1.23.5
 )
