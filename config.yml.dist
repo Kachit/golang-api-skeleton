@@ -2,6 +2,16 @@ app:
   port: 8080
   debug: true
 
+auth:
+  header: X-Auth-Token
+  token: foo
+  enabled: true
+
+logger:
+  mattermost:
+    webhook_url: https://mattermost-webhhok-url
+    user_name: golang-api-skeleton
+
 database:
   host: 127.0.0.1
   port: 5427
@@ -9,3 +19,5 @@ database:
   user: exampleuser
   password: 12345
   max_connections: 10
+  max_idle_connections: 10
+  sslmode: disable

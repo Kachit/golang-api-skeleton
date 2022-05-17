@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"path/filepath"
@@ -10,7 +11,9 @@ import (
 
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
+	Auth     AuthConfig     `mapstructure:"auth"`
 	Database DatabaseConfig `mapstructure:"database"`
+	Logger   LoggerConfig   `mapstructure:"logger"`
 }
 
 type AppConfig struct {
@@ -18,17 +21,46 @@ type AppConfig struct {
 	Debug bool
 }
 
+type AuthConfig struct {
+	Header  string
+	Token   string
+	Enabled bool
+}
+
 type DatabaseConfig struct {
-	Host           string
-	Port           uint16
-	Name           string
-	User           string
-	Password       string
-	MaxConnections int `mapstructure:"max_connections"`
+	Host               string
+	Port               uint16
+	Name               string
+	User               string
+	Password           string
+	MaxConnections     int    `mapstructure:"max_connections"`
+	MaxIdleConnections int    `mapstructure:"max_idle_connections"`
+	SslMode            string `mapstructure:"sslmode"`
+}
+
+type LoggerConfig struct {
+	Mattermost LoggerAdapterMattermostConfig `mapstructure:"mattermost"`
+}
+
+type LoggerAdapterMattermostConfig struct {
+	WebhookUrl string `mapstructure:"webhook_url"`
+	Username   string `mapstructure:"user_name"`
 }
 
 func (c *Config) GetAppPort() string {
 	return ":" + strconv.FormatUint(uint64(c.App.Port), 10)
+}
+
+func (c *Config) GetDatabaseDsn() string {
+	return fmt.Sprintf(
+		"host=%s port=%d user=%s dbname=%s password=%s sslmode=%s",
+		c.Database.Host,
+		c.Database.Port,
+		c.Database.User,
+		c.Database.Name,
+		c.Database.Password,
+		c.Database.SslMode,
+	)
 }
 
 func NewConfig(configPath string) (*Config, error) {
