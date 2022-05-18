@@ -46,21 +46,21 @@ func Test_Middleware_HttpErrorHandlerMiddlewareError(t *testing.T) {
 }
 
 func Test_Middleware_ConvertErrorToHttpError(t *testing.T) {
-	err := errors.New("UsersApiResource.Create: UsersService.Open: box opening price is not equal")
+	err := errors.New("UsersApiResource.Create: UsersService.Create: user is not equal")
 	result := convertErrorToHttpError(err)
-	assert.Equal(t, "box opening price is not equal", result.Error())
+	assert.Equal(t, "user is not equal", result.Error())
 }
 
 func Test_Middleware_ConvertErrorMessageWithColon(t *testing.T) {
-	msg := "UsersApiResource.Open: UsersService.Create: box opening price is not equal"
+	msg := "UsersApiResource.Open: UsersService.Create: user is not equal"
 	result := convertErrorMessage(msg)
-	assert.Equal(t, "box opening price is not equal", result)
+	assert.Equal(t, "user is not equal", result)
 }
 
 func Test_Middleware_ConvertErrorMessageWithoutColon(t *testing.T) {
-	msg := "box opening price is not equal"
+	msg := "user is not equal"
 	result := convertErrorMessage(msg)
-	assert.Equal(t, "box opening price is not equal", result)
+	assert.Equal(t, "user is not equal", result)
 }
 
 func Test_Middleware_ConvertErrorMessageSqlError(t *testing.T) {

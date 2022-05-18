@@ -13,7 +13,7 @@ type CreateUserDTO struct {
 
 type EditUserDTO struct {
 	Name     string `json:"name,omitempty" conform:"trim"`
-	Email    string `json:"slug,omitempty" conform:"trim"`
+	Email    string `json:"email,omitempty" conform:"trim"`
 	Password string `json:"image,omitempty" conform:"trim"`
 }
 

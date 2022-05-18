@@ -101,12 +101,12 @@ func (us *UsersService) buildUserFromCreateUserDTO(userDto *dto.CreateUserDTO) (
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
 	}
-	var box models.User
-	err = json.Unmarshal(data, &box)
+	var user models.User
+	err = json.Unmarshal(data, &user)
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
 	}
-	return &box, nil
+	return &user, nil
 }
 
 func (us *UsersService) fillUserFromEditUserDTO(user *models.User, userDto *dto.EditUserDTO) (*models.User, error) {

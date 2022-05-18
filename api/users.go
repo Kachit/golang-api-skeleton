@@ -35,12 +35,12 @@ func (a *UsersAPIResource) GetById(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.GetById: %v", err))
 		return
 	}
-	box, err := a.us.GetById(params.ID)
+	user, err := a.us.GetById(params.ID)
 	if err != nil {
-		c.AbortWithError(http.StatusNotFound, fmt.Errorf("UsersAPIResource.GetByIdentifierId: %v", err))
+		c.AbortWithError(http.StatusNotFound, fmt.Errorf("UsersAPIResource.GetById: %v", err))
 		return
 	}
-	c.JSON(http.StatusOK, rest.NewResponseBody(box))
+	c.JSON(http.StatusOK, rest.NewResponseBody(user))
 }
 
 func (a *UsersAPIResource) Create(c *gin.Context) {
@@ -49,12 +49,12 @@ func (a *UsersAPIResource) Create(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.Create: %v", err))
 		return
 	}
-	box, err := a.us.Create(userDTO)
+	user, err := a.us.Create(userDTO)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.Create: %v", err))
 		return
 	}
-	body := rest.NewResponseBody(box)
+	body := rest.NewResponseBody(user)
 	c.JSON(http.StatusCreated, body)
 }
 
@@ -69,11 +69,11 @@ func (a *UsersAPIResource) Edit(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.Edit: %v", err))
 		return
 	}
-	box, err := a.us.Edit(params.ID, userDTO)
+	user, err := a.us.Edit(params.ID, userDTO)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.Edit: %v", err))
 		return
 	}
-	body := rest.NewResponseBody(box)
+	body := rest.NewResponseBody(user)
 	c.JSON(http.StatusOK, body)
 }
