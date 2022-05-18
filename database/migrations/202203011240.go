@@ -17,7 +17,7 @@ func init() {
 	Migrations = append(Migrations, &gormigrate.Migration{
 		ID: name() + "_create_users_id_seq",
 		Migrate: func(tx *gorm.DB) error {
-			return tx.Exec(`CREATE SEQUENCE "users__id_seq" 
+			return tx.Exec(`CREATE SEQUENCE "users_id_seq" 
 									INCREMENT 1
 									MINVALUE  1
 									MAXVALUE 2147483647
