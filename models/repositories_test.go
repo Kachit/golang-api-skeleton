@@ -71,6 +71,20 @@ func Test_Models_Repositories_UsersRepository_GetListByFilter(t *testing.T) {
 	assert.Equal(t, uint64(1), result[0].Id)
 }
 
+func Test_Models_Repositories_UsersRepository_GetListByFilterError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "users"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+
+	_, err := rep.GetListByFilter()
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+}
+
 func Test_Models_Repositories_UsersRepository_GetByEmailFound(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rep := &UsersRepository{db: db}
@@ -99,7 +113,21 @@ func Test_Models_Repositories_UsersRepository_GetByEmailNotFound(t *testing.T) {
 	assert.Equal(t, "UsersRepository.GetByEmail: record not found", err.Error())
 }
 
-func Test_Models_Repositories_BoxesRepository_CountBySlug(t *testing.T) {
+func Test_Models_Repositories_UsersRepository_GetByEmailError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL`)).
+		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+
+	_, err := rep.GetByEmail("foo@bar.baz")
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.GetByEmail: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+}
+
+func Test_Models_Repositories_UsersRepository_CountByEmail(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rep := &UsersRepository{db: db}
 	mock.MatchExpectationsInOrder(false)
@@ -113,7 +141,21 @@ func Test_Models_Repositories_BoxesRepository_CountBySlug(t *testing.T) {
 	assert.Equal(t, int64(1), result)
 }
 
-func Test_Models_Repositories_UsersRepository_Create(t *testing.T) {
+func Test_Models_Repositories_UsersRepository_CountByEmailError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
+
+	_, err := rep.CountByEmail("foo@bar.baz")
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+}
+
+func Test_Models_Repositories_UsersRepository_CreateSuccess(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rep := &UsersRepository{db: db}
 	mock.MatchExpectationsInOrder(false)
@@ -133,7 +175,27 @@ func Test_Models_Repositories_UsersRepository_Create(t *testing.T) {
 	assert.NotEmpty(t, user.CreatedAt)
 }
 
-func Test_Models_Repositories_UsersRepository_Edit(t *testing.T) {
+func Test_Models_Repositories_UsersRepository_CreateError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+	mock.ExpectBegin()
+
+	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+
+	mock.ExpectRollback()
+
+	err := rep.Create(user)
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.NotEmpty(t, user.CreatedAt)
+}
+
+func Test_Models_Repositories_UsersRepository_EditSuccess(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rep := &UsersRepository{db: db}
 	mock.MatchExpectationsInOrder(false)
@@ -149,5 +211,25 @@ func Test_Models_Repositories_UsersRepository_Edit(t *testing.T) {
 
 	err := rep.Edit(user)
 	assert.NoError(t, err)
+	assert.NotEmpty(t, user.ModifiedAt)
+}
+
+func Test_Models_Repositories_UsersRepository_EditError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+	mock.ExpectBegin()
+
+	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
+
+	mock.ExpectExec(regexp.QuoteMeta(
+		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	mock.ExpectCommit()
+
+	err := rep.Edit(user)
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
 	assert.NotEmpty(t, user.ModifiedAt)
 }

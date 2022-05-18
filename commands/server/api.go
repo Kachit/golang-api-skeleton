@@ -81,6 +81,11 @@ func (s *ServerAPICommand) RunServer() error {
 		return err
 	}
 
+	docsApi, err := bootstrap.InitializeDocumentationResource(container)
+	if err != nil {
+		return err
+	}
+
 	usersApi, err := bootstrap.InitializeUsersAPIResource(container)
 	if err != nil {
 		return err
@@ -97,23 +102,23 @@ func (s *ServerAPICommand) RunServer() error {
 	if !cfg.App.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	//
-	//apiRoutes := router.Group("/")
-	//{
-	//	shared := apiRoutes.Group("/shared")
-	//	{
-	//		shared.GET("/swagger", docsApi.GetSwagger)
-	//	}
-	//}
+
+	apiRoutes := router.Group("/")
+	{
+		shared := apiRoutes.Group("/shared")
+		{
+			shared.GET("/swagger", docsApi.GetSwagger)
+		}
+	}
 
 	apiRoutesV1 := router.Group("/v1")
 	{
-		boxes := apiRoutesV1.Group("/users")
+		users := apiRoutesV1.Group("/users")
 		{
-			boxes.GET("", usersApi.GetList)
-			boxes.GET("/:id", usersApi.GetById)
-			boxes.POST("", usersApi.Create)
-			boxes.PUT("/:id", usersApi.Edit)
+			users.GET("", usersApi.GetList)
+			users.GET("/:id", usersApi.GetById)
+			users.POST("", usersApi.Create)
+			users.PUT("/:id", usersApi.Edit)
 		}
 	}
 
