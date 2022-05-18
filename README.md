@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kachit/golang-api-skeleton)](https://goreportcard.com/report/github.com/kachit/golang-api-skeleton)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/kachit/golang-api-skeleton/blob/master/LICENSE)
 
-###Commands list:
+### Commands list:
 | Command | Description | Launch |
 | ------ | ------ |------ |
 | **develop:test** | Testable command | manually |
