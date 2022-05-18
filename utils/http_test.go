@@ -9,7 +9,7 @@ import (
 )
 
 func Test_Utils_DumpHttpRequestWithoutBody(t *testing.T) {
-	req, _ := http.NewRequest("GET", "https://foo.bar/v1/boxes?foo=bar", nil)
+	req, _ := http.NewRequest("GET", "https://foo.bar/v1/users?foo=bar", nil)
 	req.Header.Add("Content-Type", gin.MIMEJSON)
 	req.Header.Add("X-Auth-Token", "qwerty")
 	result := DumpHttpRequest(req)
@@ -20,7 +20,7 @@ func Test_Utils_DumpHttpRequestWithoutBody(t *testing.T) {
 
 func Test_Utils_DumpHttpRequestWithBody(t *testing.T) {
 	jsonStr := `{"user_id": 123, "mode": "demo", "box_price": 100}`
-	req, _ := http.NewRequest("POST", "https://foo.bar/v1/boxes", bytes.NewBufferString(jsonStr))
+	req, _ := http.NewRequest("POST", "https://foo.bar/v1/users", bytes.NewBufferString(jsonStr))
 	req.Header.Add("Content-Type", gin.MIMEJSON)
 	req.Header.Add("X-Auth-Token", "qwerty")
 	result := DumpHttpRequest(req)

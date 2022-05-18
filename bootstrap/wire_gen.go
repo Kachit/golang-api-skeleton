@@ -9,6 +9,7 @@ package bootstrap
 import (
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
+	"github.com/kachit/golang-api-skeleton/middleware"
 	"github.com/kachit/golang-api-skeleton/models"
 	"gorm.io/gorm"
 )
@@ -39,6 +40,11 @@ func InitializeDatabase(cfg *config.Config) (*gorm.DB, error) {
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
 	repositoriesFactory := models.NewRepositoriesFactory(db)
 	return repositoriesFactory, nil
+}
+
+func InitializeMiddlewareFactory(container *infrastructure.Container) (*middleware.Factory, error) {
+	factory := middleware.NewMiddlewareFactory(container)
+	return factory, nil
 }
 
 func InitializeContainer(configPath string) (*infrastructure.Container, error) {

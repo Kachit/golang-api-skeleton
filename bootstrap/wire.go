@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
+	"github.com/kachit/golang-api-skeleton/middleware"
 	"github.com/kachit/golang-api-skeleton/models"
 	"gorm.io/gorm"
 )
@@ -29,6 +30,11 @@ func InitializeDatabase(cfg *config.Config) (*gorm.DB, error) {
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
 	wire.Build(models.NewRepositoriesFactory)
 	return &models.RepositoriesFactory{}, nil
+}
+
+func InitializeMiddlewareFactory(container *infrastructure.Container) (*middleware.Factory, error) {
+	wire.Build(middleware.NewMiddlewareFactory)
+	return &middleware.Factory{}, nil
 }
 
 func InitializeContainer(configPath string) (*infrastructure.Container, error) {

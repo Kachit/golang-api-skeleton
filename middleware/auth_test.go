@@ -14,7 +14,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndV1UrlPath(t *test
 	header := "X-Auth-Token"
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	c.Request.Header.Add(header, token)
 	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
 	mdl := TokenAuthMiddleware(cfg, nil)
@@ -39,7 +39,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithDisabledAuthAndEmptyToken(t *te
 	header := "X-Auth-Token"
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	cfg := &config.AuthConfig{Enabled: false, Header: header, Token: token}
 	mdl := TokenAuthMiddleware(cfg, nil)
 	mdl(c)
@@ -51,7 +51,7 @@ func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyToken(t *testing.T) {
 	header := "X-Auth-Token"
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
 	mdl := TokenAuthMiddleware(cfg, nil)
 	mdl(c)
@@ -63,7 +63,7 @@ func Test_Middleware_TokenAuthMiddlewareInvalidWithWrongToken(t *testing.T) {
 	header := "X-Auth-Token"
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	c.Request.Header.Add(header, token+token)
 	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
 	mdl := TokenAuthMiddleware(cfg, nil)
@@ -76,7 +76,7 @@ func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyTokenInConfig(t *testing
 	header := "X-Auth-Token"
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	c.Request.Header.Add(header, token)
 	cfg := &config.AuthConfig{Enabled: true}
 	mdl := TokenAuthMiddleware(cfg, nil)

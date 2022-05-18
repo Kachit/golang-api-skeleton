@@ -14,7 +14,7 @@ import (
 func Test_Middleware_HttpErrorHandlerMiddlewareSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 
 	ct := c.Writer.Header().Get("Content-Type")
 	logger := testable.GetLoggerMock()
@@ -31,7 +31,7 @@ func Test_Middleware_HttpErrorHandlerMiddlewareSuccess(t *testing.T) {
 func Test_Middleware_HttpErrorHandlerMiddlewareError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/boxes", nil)
+	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	ct := c.Writer.Header().Get("Content-Type")
 	c.AbortWithError(http.StatusForbidden, errors.New("foo bar"))
 	logger := testable.GetLoggerMock()
@@ -46,13 +46,13 @@ func Test_Middleware_HttpErrorHandlerMiddlewareError(t *testing.T) {
 }
 
 func Test_Middleware_ConvertErrorToHttpError(t *testing.T) {
-	err := errors.New("BoxesResource.Open: BoxesService.Open: box opening price is not equal")
+	err := errors.New("UsersApiResource.Create: UsersService.Open: box opening price is not equal")
 	result := convertErrorToHttpError(err)
 	assert.Equal(t, "box opening price is not equal", result.Error())
 }
 
 func Test_Middleware_ConvertErrorMessageWithColon(t *testing.T) {
-	msg := "BoxesResource.Open: BoxesService.Open: box opening price is not equal"
+	msg := "UsersApiResource.Open: UsersService.Create: box opening price is not equal"
 	result := convertErrorMessage(msg)
 	assert.Equal(t, "box opening price is not equal", result)
 }
@@ -64,7 +64,7 @@ func Test_Middleware_ConvertErrorMessageWithoutColon(t *testing.T) {
 }
 
 func Test_Middleware_ConvertErrorMessageSqlError(t *testing.T) {
-	msg := `BoxesResource.Open: BoxesService.Open: duplicate key value violates unique constraint "ux_boo_spin_id" (SQLSTATE 23505)`
+	msg := `UsersApiResource.Open: UsersService.Open: duplicate key value violates unique constraint "ux_user_email" (SQLSTATE 23505)`
 	result := convertErrorMessage(msg)
 	assert.Equal(t, "Database error", result)
 }

@@ -15,8 +15,8 @@ logger:
 database:
   host: 127.0.0.1
   port: 5427
-  name: exampledb
-  user: exampleuser
+  name: example_db
+  user: example_user
   password: 12345
   max_connections: 10
   max_idle_connections: 10

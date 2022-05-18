@@ -37,6 +37,16 @@ func (r *UsersRepository) Edit(entity *User) error {
 	return nil
 }
 
+func (r *UsersRepository) GetListByFilter() ([]*User, error) {
+	var records []*User
+	tx := r.db.Unscoped()
+	result := tx.Find(&records)
+	if result.Error != nil {
+		return nil, fmt.Errorf("UsersRepository.GetListByFilter: %v", result.Error)
+	}
+	return records, nil
+}
+
 func (r *UsersRepository) GetById(id uint64) (*User, error) {
 	var record User
 	result := r.db.Unscoped().Find(&record, id)
@@ -49,9 +59,9 @@ func (r *UsersRepository) GetById(id uint64) (*User, error) {
 	return &record, nil
 }
 
-func (r *UsersRepository) GetByEmail(slug string) (*User, error) {
+func (r *UsersRepository) GetByEmail(email string) (*User, error) {
 	var record User
-	result := r.db.Find(&record, "email = ?", slug)
+	result := r.db.Find(&record, "email = ?", email)
 	if result.Error != nil {
 		return nil, fmt.Errorf("UsersRepository.GetByEmail: %v", result.Error)
 	}
@@ -59,4 +69,13 @@ func (r *UsersRepository) GetByEmail(slug string) (*User, error) {
 		return nil, fmt.Errorf("UsersRepository.GetByEmail: record not found")
 	}
 	return &record, nil
+}
+
+func (r *UsersRepository) CountByEmail(email string) (int64, error) {
+	var count int64
+	result := r.db.Model(&User{}).Unscoped().Where("email = ?", email).Count(&count)
+	if result.Error != nil {
+		return 0, fmt.Errorf("UsersRepository.CountByEmail: %v", result.Error)
+	}
+	return count, nil
 }
