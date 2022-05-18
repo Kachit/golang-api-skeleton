@@ -5,6 +5,7 @@ package bootstrap
 
 import (
 	"github.com/google/wire"
+	"github.com/kachit/golang-api-skeleton/api"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/middleware"
@@ -35,6 +36,20 @@ func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, er
 func InitializeMiddlewareFactory(container *infrastructure.Container) (*middleware.Factory, error) {
 	wire.Build(middleware.NewMiddlewareFactory)
 	return &middleware.Factory{}, nil
+}
+
+func InitializeErrorsResource(container *infrastructure.Container) (*api.ErrorsResource, error) {
+	wire.Build(api.NewErrorsResource)
+	return &api.ErrorsResource{}, nil
+}
+
+func InitializeDocumentationResource(container *infrastructure.Container) (*api.DocumentationResource, error) {
+	return &api.DocumentationResource{}, nil
+}
+
+func InitializeUsersAPIResource(container *infrastructure.Container) (*api.UsersAPIResource, error) {
+	wire.Build(api.NewUsersAPIResource)
+	return &api.UsersAPIResource{}, nil
 }
 
 func InitializeContainer(configPath string) (*infrastructure.Container, error) {

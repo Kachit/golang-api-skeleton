@@ -3,8 +3,8 @@ package commands
 import (
 	"github.com/kachit/golang-api-skeleton/commands/database"
 	"github.com/kachit/golang-api-skeleton/commands/develop"
+	"github.com/kachit/golang-api-skeleton/commands/server"
 	"github.com/mitchellh/cli"
-	//"github.com/kachit/golang-api-skeleton/commands/server"
 )
 
 type Factory func(cli.Ui) (cli.Command, error)
@@ -38,5 +38,5 @@ func init() {
 	AddRegistry(commands_database.DatabaseSeedersSeed, commands_database.SeedCmd)
 	AddRegistry(commands_database.DatabaseSeedersClear, commands_database.ClearCmd)
 	//Server
-	//AddRegistry(commands_server.ServerApi, commands_server.ServerAPICmd)
+	AddRegistry(commands_server.ServerApi, commands_server.ServerAPICmd)
 }

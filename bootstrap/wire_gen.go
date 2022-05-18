@@ -7,6 +7,7 @@
 package bootstrap
 
 import (
+	"github.com/kachit/golang-api-skeleton/api"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/middleware"
@@ -47,6 +48,16 @@ func InitializeMiddlewareFactory(container *infrastructure.Container) (*middlewa
 	return factory, nil
 }
 
+func InitializeErrorsResource(container *infrastructure.Container) (*api.ErrorsResource, error) {
+	errorsResource := api.NewErrorsResource(container)
+	return errorsResource, nil
+}
+
+func InitializeUsersAPIResource(container *infrastructure.Container) (*api.UsersAPIResource, error) {
+	usersAPIResource := api.NewUsersAPIResource(container)
+	return usersAPIResource, nil
+}
+
 func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	configConfig, err := InitializeConfig(configPath)
 	if err != nil {
@@ -71,4 +82,10 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 		RF:     repositoriesFactory,
 	}
 	return container, nil
+}
+
+// wire.go:
+
+func InitializeDocumentationResource(container *infrastructure.Container) (*api.DocumentationResource, error) {
+	return &api.DocumentationResource{}, nil
 }
