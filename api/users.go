@@ -7,6 +7,7 @@ import (
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/rest"
 	"github.com/kachit/golang-api-skeleton/services"
+	"github.com/kachit/golang-api-skeleton/transformers"
 	"net/http"
 )
 
@@ -25,7 +26,8 @@ func (a *UsersAPIResource) GetList(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.GetList: %v", err))
 		return
 	}
-	body := rest.NewResponseBodyWithPagination(collection, 0, len(collection))
+	data, err := transformers.MapUsersResourceCollection(collection)
+	body := rest.NewResponseBodyWithPagination(data, 0, len(collection))
 	c.JSON(http.StatusOK, body)
 }
 
@@ -40,7 +42,9 @@ func (a *UsersAPIResource) GetById(c *gin.Context) {
 		c.AbortWithError(http.StatusNotFound, fmt.Errorf("UsersAPIResource.GetById: %v", err))
 		return
 	}
-	c.JSON(http.StatusOK, rest.NewResponseBody(user))
+
+	data, _ := transformers.MapUsersResourceItem(user)
+	c.JSON(http.StatusOK, rest.NewResponseBody(data))
 }
 
 func (a *UsersAPIResource) Create(c *gin.Context) {

@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-gormigrate/gormigrate/v2 v2.0.1
 	github.com/google/wire v0.5.0
+	github.com/ibllex/go-fractal v1.0.0
 	github.com/int128/slack v1.5.0
 	github.com/jaswdr/faker v1.10.2
 	github.com/kachit/gorm-seeder v0.0.1

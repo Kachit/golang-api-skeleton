@@ -14,10 +14,10 @@ type User struct {
 	Id         uint64         `json:"id" gorm:"primaryKey"`
 	Name       string         `json:"name"`
 	Email      string         `json:"email"`
-	Password   string         `json:"password"`
+	Password   string         `json:"password,omitempty"`
 	CreatedAt  time.Time      `json:"created_at"`
-	ModifiedAt *time.Time     `json:"modified_at"`
-	DeletedAt  gorm.DeletedAt `json:"deleted_at"`
+	ModifiedAt *time.Time     `json:"modified_at,omitempty"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
