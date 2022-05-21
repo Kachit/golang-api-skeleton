@@ -4,3 +4,4 @@ db
 *.exe
 config.yml
 coverage.out
+coverage.html

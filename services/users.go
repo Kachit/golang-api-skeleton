@@ -34,15 +34,6 @@ func (us *UsersService) GetById(id uint64) (*models.User, error) {
 	return user, nil
 }
 
-func (us *UsersService) GetByEmail(email string) (*models.User, error) {
-	rep := us.rf.GetUsersRepository()
-	user, err := rep.GetByEmail(email)
-	if err != nil {
-		return nil, fmt.Errorf("UsersService.GetByEmail: %v", err)
-	}
-	return user, nil
-}
-
 func (us *UsersService) Create(userDto *dto.CreateUserDTO) (*models.User, error) {
 	rep := us.rf.GetUsersRepository()
 	err := us.checkIsUniqueEmail(userDto.Email, nil)
