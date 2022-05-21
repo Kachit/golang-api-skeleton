@@ -72,7 +72,8 @@ func (s *Seed) runSeeding() error {
 	//db := container.DB.Ses
 	seedersStack := gorm_seeder.NewSeedersStack(container.DB)
 	if s.users > 0 {
-		usersSeeder := seeds.NewUsersSeeder(gorm_seeder.SeederConfiguration{Rows: s.users})
+		cfg := gorm_seeder.SeederConfiguration{Rows: s.users}
+		usersSeeder := seeds.NewUsersSeeder(cfg, container.PG)
 		seedersStack.AddSeeder(&usersSeeder)
 	}
 	err = seedersStack.Seed()

@@ -11,6 +11,7 @@ import (
 
 func Test_DTO_BindCreateUserDTOValidFullFilled(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name", "email": "foo@bar.baz", "password": "pwd"}`
 	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
@@ -24,6 +25,7 @@ func Test_DTO_BindCreateUserDTOValidFullFilled(t *testing.T) {
 
 func Test_DTO_BindCreateUserDTOInvalidEmptyName(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"email": "foo@bar.baz", "password": "pwd"}`
 	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
@@ -35,6 +37,7 @@ func Test_DTO_BindCreateUserDTOInvalidEmptyName(t *testing.T) {
 
 func Test_DTO_BindCreateUserDTOInvalidEmptyEmail(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name ", "password": "pwd "}`
 	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
@@ -46,6 +49,7 @@ func Test_DTO_BindCreateUserDTOInvalidEmptyEmail(t *testing.T) {
 
 func Test_DTO_BindCreateUserDTOInvalidWrongEmail(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name ", "password": "pwd ", "email": "foo"}`
 	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
@@ -57,6 +61,7 @@ func Test_DTO_BindCreateUserDTOInvalidWrongEmail(t *testing.T) {
 
 func Test_DTO_BindCreateUserDTOInvalidEmptyPassword(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name ", "email": "foo@bar.baz"}`
 	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
@@ -68,6 +73,7 @@ func Test_DTO_BindCreateUserDTOInvalidEmptyPassword(t *testing.T) {
 
 func Test_DTO_BindEditUserDTOValidFullFilled(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name", "email": "foo@bar.baz", "password": "pwd"}`
 	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
@@ -81,6 +87,7 @@ func Test_DTO_BindEditUserDTOValidFullFilled(t *testing.T) {
 
 func Test_DTO_BindEditUserDTOInvalidWrongEmail(t *testing.T) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	jsonStr := `{"name": "Name ", "password": "pwd ", "email": "foo"}`
 	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))

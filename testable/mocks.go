@@ -5,6 +5,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type LoggerMock struct {
@@ -53,6 +54,7 @@ func (l *LoggerMock) Emergency(msg string, params ...interface{}) {
 
 func GetDatabaseMock() (*gorm.DB, sqlmock.Sqlmock) {
 	mockDB, mock, _ := sqlmock.New()
+	logMode := logger.Silent
 
 	dialector := postgres.New(postgres.Config{
 		DSN:                  "sqlmock_db",
@@ -61,7 +63,7 @@ func GetDatabaseMock() (*gorm.DB, sqlmock.Sqlmock) {
 		PreferSimpleProtocol: true,
 	})
 
-	db, _ := gorm.Open(dialector, &gorm.Config{})
+	db, _ := gorm.Open(dialector, &gorm.Config{Logger: logger.Default.LogMode(logMode)})
 	return db, mock
 }
 

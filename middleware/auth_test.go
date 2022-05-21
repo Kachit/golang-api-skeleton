@@ -12,6 +12,7 @@ import (
 func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndV1UrlPath(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
@@ -25,6 +26,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndV1UrlPath(t *test
 func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndNonV1UrlPathAndEmptyToken(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/health-check", nil)
@@ -37,6 +39,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndNonV1UrlPathAndEm
 func Test_Middleware_TokenAuthMiddlewareValidWithDisabledAuthAndEmptyToken(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
@@ -49,6 +52,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithDisabledAuthAndEmptyToken(t *te
 func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyToken(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
@@ -61,6 +65,7 @@ func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyToken(t *testing.T) {
 func Test_Middleware_TokenAuthMiddlewareInvalidWithWrongToken(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
@@ -74,6 +79,7 @@ func Test_Middleware_TokenAuthMiddlewareInvalidWithWrongToken(t *testing.T) {
 func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyTokenInConfig(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
+	gin.SetMode(gin.ReleaseMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)

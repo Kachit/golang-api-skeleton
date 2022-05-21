@@ -71,8 +71,8 @@ func (s *ClearSeed) runClear() error {
 	}
 	seedersStack := gorm_seeder.NewSeedersStack(container.DB)
 	if s.confirm {
-		config := gorm_seeder.SeederConfiguration{}
-		usersSeeder := seeds.NewUsersSeeder(config)
+		cfg := gorm_seeder.SeederConfiguration{}
+		usersSeeder := seeds.NewUsersSeeder(cfg, nil)
 		seedersStack.AddSeeder(&usersSeeder)
 	}
 	err = seedersStack.Clear()

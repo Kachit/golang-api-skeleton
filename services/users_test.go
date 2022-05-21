@@ -139,13 +139,13 @@ func Test_Services_UsersService_CheckIsUniqueEmailNotSameUserInvalid(t *testing.
 }
 
 func Test_Services_UsersService_BuildUserFromCreateUserDTO(t *testing.T) {
-	service := NewUsersService(&infrastructure.Container{})
+	service := NewUsersService(&infrastructure.Container{PG: infrastructure.NewPasswordGenerator(nil)})
 	userDto := &dto.CreateUserDTO{Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	user, err := service.buildUserFromCreateUserDTO(userDto)
 	assert.NoError(t, err)
 	assert.Equal(t, userDto.Name, user.Name)
 	assert.Equal(t, userDto.Email, user.Email)
-	assert.Equal(t, userDto.Password, user.Password)
+	assert.NotEqual(t, userDto.Password, user.Password)
 
 	assert.Empty(t, user.Id)
 	assert.Empty(t, user.CreatedAt)

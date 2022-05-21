@@ -38,6 +38,11 @@ func InitializeDatabase(cfg *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
+func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGenerator, error) {
+	passwordGenerator := infrastructure.NewPasswordGenerator(cfg)
+	return passwordGenerator, nil
+}
+
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
 	repositoriesFactory := models.NewRepositoriesFactory(db)
 	return repositoriesFactory, nil
@@ -67,6 +72,10 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	if err != nil {
 		return nil, err
 	}
+	passwordGenerator, err := InitializePasswordGenerator(configConfig)
+	if err != nil {
+		return nil, err
+	}
 	db, err := InitializeDatabase(configConfig)
 	if err != nil {
 		return nil, err
@@ -78,6 +87,7 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	container := &infrastructure.Container{
 		Config: configConfig,
 		Logger: logger,
+		PG:     passwordGenerator,
 		DB:     db,
 		RF:     repositoriesFactory,
 	}

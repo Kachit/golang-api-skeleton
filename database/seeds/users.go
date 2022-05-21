@@ -1,7 +1,9 @@
 package seeds
 
 import (
+	"fmt"
 	"github.com/jaswdr/faker"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models"
 	gorm_seeder "github.com/kachit/gorm-seeder"
 	"gorm.io/gorm"
@@ -9,22 +11,24 @@ import (
 
 type UsersSeeder struct {
 	gorm_seeder.SeederAbstract
+	pg infrastructure.PasswordGenerator
 }
 
-func NewUsersSeeder(cfg gorm_seeder.SeederConfiguration) UsersSeeder {
-	return UsersSeeder{gorm_seeder.NewSeederAbstract(cfg)}
+func NewUsersSeeder(cfg gorm_seeder.SeederConfiguration, pg infrastructure.PasswordGenerator) UsersSeeder {
+	return UsersSeeder{SeederAbstract: gorm_seeder.NewSeederAbstract(cfg), pg: pg}
 }
 
 func (s *UsersSeeder) Seed(db *gorm.DB) error {
 	fkr := faker.New()
 	var users []models.User
 	for i := 0; i < s.Configuration.Rows; i++ {
-		tag := models.User{
+		password, _ := s.pg.HashPassword(fmt.Sprintf("%d", 123456+i))
+		user := models.User{
 			Name:     fkr.Person().Name(),
 			Email:    fkr.Internet().Email(),
-			Password: fkr.Internet().Password(),
+			Password: password,
 		}
-		users = append(users, tag)
+		users = append(users, user)
 	}
 	return db.CreateInBatches(users, s.Configuration.Rows).Error
 }

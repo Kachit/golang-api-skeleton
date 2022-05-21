@@ -28,6 +28,11 @@ func InitializeDatabase(cfg *config.Config) (*gorm.DB, error) {
 	return &gorm.DB{}, nil
 }
 
+func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGenerator, error) {
+	wire.Build(infrastructure.NewPasswordGenerator)
+	return &infrastructure.PasswordGeneratorBCrypt{}, nil
+}
+
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
 	wire.Build(models.NewRepositoriesFactory)
 	return &models.RepositoriesFactory{}, nil
@@ -56,11 +61,13 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	wire.Build(
 		InitializeConfig,
 		InitializeLogger,
+		InitializePasswordGenerator,
 		InitializeDatabase,
 		InitializeRepositoriesFactory,
 		wire.Struct(new(infrastructure.Container),
 			"Config",
 			"Logger",
+			"PG",
 			"DB",
 			"RF",
 		),

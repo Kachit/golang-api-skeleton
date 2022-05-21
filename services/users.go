@@ -9,11 +9,12 @@ import (
 )
 
 func NewUsersService(container *infrastructure.Container) *UsersService {
-	return &UsersService{rf: container.RF}
+	return &UsersService{rf: container.RF, pg: container.PG}
 }
 
 type UsersService struct {
 	rf *models.RepositoriesFactory
+	pg infrastructure.PasswordGenerator
 }
 
 func (us *UsersService) GetListByFilter() ([]*models.User, error) {
@@ -94,6 +95,10 @@ func (us *UsersService) buildUserFromCreateUserDTO(userDto *dto.CreateUserDTO) (
 	}
 	var user models.User
 	err = json.Unmarshal(data, &user)
+	if err != nil {
+		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
+	}
+	user.Password, err = us.pg.HashPassword(user.Password)
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
 	}
