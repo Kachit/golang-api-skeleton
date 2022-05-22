@@ -4,6 +4,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/kachit/golang-api-skeleton)](https://goreportcard.com/report/github.com/kachit/golang-api-skeleton)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/kachit/golang-api-skeleton/blob/master/LICENSE)
 
+### Uses:
+* gin as http framework
+* gorm v2 as ORM
+* go-fractal as serializer
+* go-hashids as numerical ID obfuscation
+
 ### Commands list:
 | Command | Description | Launch |
 | ------ | ------ |------ |

@@ -2,48 +2,25 @@ package transformers
 
 import (
 	"github.com/ibllex/go-fractal"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models"
 )
 
-func MapUsersResourceItem(user *models.User) (fractal.M, error) {
-	resource := NewUsersResourceItem(user)
-	return NewFractalManager().CreateData(resource, nil).ToMap()
-}
-
-func MapUsersResourceCollection(users []*models.User) (fractal.M, error) {
-	resource := NewUsersResourceCollection(users)
-	return NewFractalManager().CreateData(resource, nil).ToMap()
-}
-
-func NewUsersResourceItem(user *models.User) *fractal.Item {
-	return fractal.NewItem(
-		fractal.WithData(user),
-		fractal.WithResourceKey("users"),
-		fractal.WithTransformer(NewUsersTransformer()),
-	)
-}
-
-func NewUsersResourceCollection(users []*models.User) *fractal.Collection {
-	return fractal.NewCollection(
-		fractal.WithData(users),
-		fractal.WithResourceKey("users"),
-		fractal.WithTransformer(NewUsersTransformer()),
-	)
-}
-
-func NewUsersTransformer() *UsersTransformer {
-	return &UsersTransformer{&fractal.BaseTransformer{}}
+func NewUsersTransformer(hashIds *infrastructure.HashIds) *UsersTransformer {
+	return &UsersTransformer{&fractal.BaseTransformer{}, hashIds}
 }
 
 type UsersTransformer struct {
 	*fractal.BaseTransformer
+	hashIds *infrastructure.HashIds
 }
 
 func (t *UsersTransformer) Transform(data fractal.Any) fractal.M {
 	result := fractal.M{}
 
 	if u := t.toUser(data); u != nil {
-		result["id"] = u.Id
+		hash, _ := t.hashIds.EncodeUint64(u.Id)
+		result["id"] = hash
 		result["name"] = u.Name
 		result["email"] = u.Email
 		result["created_at"] = u.CreatedAt
@@ -59,4 +36,12 @@ func (t *UsersTransformer) toUser(data fractal.Any) *models.User {
 		return &b
 	}
 	return nil
+}
+
+func transformUsersToFractal(users []*models.User) []fractal.Any {
+	var u []fractal.Any
+	for _, user := range users {
+		u = append(u, *user)
+	}
+	return u
 }

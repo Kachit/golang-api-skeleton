@@ -7,6 +7,7 @@
 package bootstrap
 
 import (
+	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/api"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
@@ -43,6 +44,16 @@ func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGen
 	return passwordGenerator, nil
 }
 
+func InitializeHashIds() (*infrastructure.HashIds, error) {
+	hashIds := infrastructure.NewHashIds()
+	return hashIds, nil
+}
+
+func InitializeFractalManager() (*fractal.Manager, error) {
+	manager := infrastructure.NewFractalManager()
+	return manager, nil
+}
+
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
 	repositoriesFactory := models.NewRepositoriesFactory(db)
 	return repositoriesFactory, nil
@@ -76,6 +87,14 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	if err != nil {
 		return nil, err
 	}
+	hashIds, err := InitializeHashIds()
+	if err != nil {
+		return nil, err
+	}
+	manager, err := InitializeFractalManager()
+	if err != nil {
+		return nil, err
+	}
 	db, err := InitializeDatabase(configConfig)
 	if err != nil {
 		return nil, err
@@ -85,11 +104,13 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 		return nil, err
 	}
 	container := &infrastructure.Container{
-		Config: configConfig,
-		Logger: logger,
-		PG:     passwordGenerator,
-		DB:     db,
-		RF:     repositoriesFactory,
+		Config:  configConfig,
+		Logger:  logger,
+		PG:      passwordGenerator,
+		HashIds: hashIds,
+		Fractal: manager,
+		DB:      db,
+		RF:      repositoriesFactory,
 	}
 	return container, nil
 }

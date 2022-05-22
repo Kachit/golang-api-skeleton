@@ -5,6 +5,7 @@ package bootstrap
 
 import (
 	"github.com/google/wire"
+	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/api"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
@@ -31,6 +32,16 @@ func InitializeDatabase(cfg *config.Config) (*gorm.DB, error) {
 func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGenerator, error) {
 	wire.Build(infrastructure.NewPasswordGenerator)
 	return &infrastructure.PasswordGeneratorBCrypt{}, nil
+}
+
+func InitializeHashIds() (*infrastructure.HashIds, error) {
+	wire.Build(infrastructure.NewHashIds)
+	return &infrastructure.HashIds{}, nil
+}
+
+func InitializeFractalManager() (*fractal.Manager, error) {
+	wire.Build(infrastructure.NewFractalManager)
+	return &fractal.Manager{}, nil
 }
 
 func InitializeRepositoriesFactory(db *gorm.DB) (*models.RepositoriesFactory, error) {
@@ -62,12 +73,16 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 		InitializeConfig,
 		InitializeLogger,
 		InitializePasswordGenerator,
+		InitializeHashIds,
+		InitializeFractalManager,
 		InitializeDatabase,
 		InitializeRepositoriesFactory,
 		wire.Struct(new(infrastructure.Container),
 			"Config",
 			"Logger",
 			"PG",
+			"HashIds",
+			"Fractal",
 			"DB",
 			"RF",
 		),
