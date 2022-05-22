@@ -75,21 +75,20 @@ func Test_DTO_BindEditUserDTOValidFullFilled(t *testing.T) {
 	w := httptest.NewRecorder()
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
-	jsonStr := `{"name": "Name", "email": "foo@bar.baz", "password": "pwd"}`
+	jsonStr := `{"name": "Name", "email": "foo@bar.baz"}`
 	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
 	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
 	obj, err := BindEditUserDTO(c)
 	assert.NoError(t, err)
 	assert.Equal(t, "Name", obj.Name)
 	assert.Equal(t, "foo@bar.baz", obj.Email)
-	assert.Equal(t, "pwd", obj.Password)
 }
 
 func Test_DTO_BindEditUserDTOInvalidWrongEmail(t *testing.T) {
 	w := httptest.NewRecorder()
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
-	jsonStr := `{"name": "Name ", "password": "pwd ", "email": "foo"}`
+	jsonStr := `{"name": "Name ", "email": "foo"}`
 	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
 	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
 	_, err := BindEditUserDTO(c)

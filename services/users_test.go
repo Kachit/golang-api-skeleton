@@ -145,7 +145,7 @@ func Test_Services_UsersService_BuildUserFromCreateUserDTO(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, userDto.Name, user.Name)
 	assert.Equal(t, userDto.Email, user.Email)
-	assert.NotEqual(t, userDto.Password, user.Password)
+	assert.Equal(t, userDto.Password, user.Password)
 
 	assert.Empty(t, user.Id)
 	assert.Empty(t, user.CreatedAt)
@@ -153,14 +153,13 @@ func Test_Services_UsersService_BuildUserFromCreateUserDTO(t *testing.T) {
 
 func Test_Services_UsersService_FillUserFromEditUserDTO(t *testing.T) {
 	service := NewUsersService(&infrastructure.Container{})
-	user := &models.User{}
-	userDto := &dto.EditUserDTO{Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	userDto := &dto.EditUserDTO{Name: "name1", Email: "foo1@bar.baz"}
 	user, err := service.fillUserFromEditUserDTO(user, userDto)
 	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), user.Id)
 	assert.Equal(t, userDto.Name, user.Name)
 	assert.Equal(t, userDto.Email, user.Email)
-	assert.Equal(t, userDto.Password, user.Password)
-
-	assert.Empty(t, user.Id)
+	assert.Equal(t, "pwd", user.Password)
 	assert.Empty(t, user.CreatedAt)
 }

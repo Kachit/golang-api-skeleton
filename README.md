@@ -6,7 +6,7 @@
 
 ### Uses:
 * gin as http framework
-* gorm v2 as ORM
+* gorm-v2 as ORM
 * go-fractal as serializer
 * go-hashids as numerical ID obfuscation
 

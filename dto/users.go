@@ -11,9 +11,8 @@ type CreateUserDTO struct {
 }
 
 type EditUserDTO struct {
-	Name     string `json:"name,omitempty" conform:"trim"`
-	Email    string `json:"email,omitempty" binding:"email" conform:"trim"`
-	Password string `json:"password,omitempty" conform:"trim"`
+	Name  string `json:"name,omitempty" conform:"trim"`
+	Email string `json:"email,omitempty" binding:"email" conform:"trim"`
 }
 
 func BindCreateUserDTO(c *gin.Context) (*CreateUserDTO, error) {

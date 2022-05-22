@@ -24,6 +24,12 @@ func (t *UsersTransformer) Transform(data fractal.Any) fractal.M {
 		result["name"] = u.Name
 		result["email"] = u.Email
 		result["created_at"] = u.CreatedAt
+		if u.ModifiedAt != nil && !u.ModifiedAt.IsZero() {
+			result["modified_at"] = u.ModifiedAt
+		}
+		if !u.DeletedAt.Time.IsZero() {
+			result["deleted_at"] = u.DeletedAt.Time
+		}
 	}
 	return result
 }

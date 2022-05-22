@@ -9,7 +9,7 @@ type HashIds struct {
 }
 
 func NewHashIds() *HashIds {
-	return &HashIds{NewHashID("this is my salt", 30)}
+	return &HashIds{NewHashID("this is my salt", 10)}
 }
 
 func (h HashIds) EncodeUint64(num uint64) (string, error) {

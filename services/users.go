@@ -45,7 +45,10 @@ func (us *UsersService) Create(userDto *dto.CreateUserDTO) (*models.User, error)
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.Create: %v", err)
 	}
-
+	user.Password, err = us.pg.HashPassword(user.Password)
+	if err != nil {
+		return nil, fmt.Errorf("UsersService.Create: %v", err)
+	}
 	err = rep.Create(user)
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.Create: %v", err)
@@ -95,10 +98,6 @@ func (us *UsersService) buildUserFromCreateUserDTO(userDto *dto.CreateUserDTO) (
 	}
 	var user models.User
 	err = json.Unmarshal(data, &user)
-	if err != nil {
-		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
-	}
-	user.Password, err = us.pg.HashPassword(user.Password)
 	if err != nil {
 		return nil, fmt.Errorf("UsersService.buildUserFromCreateUserDTO: %v", err)
 	}
