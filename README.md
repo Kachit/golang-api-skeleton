@@ -7,7 +7,7 @@
 ### Uses:
 * gin as http framework
 * gorm-v2 as ORM
-* go-fractal as serializer
+* go-fractal as data transformer
 * go-hashids as numerical ID obfuscation
 
 ### Commands list:

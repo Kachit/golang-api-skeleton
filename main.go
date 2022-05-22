@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/kachit/golang-api-skeleton/commands"
 	"github.com/mitchellh/cli"
 	"log"
@@ -15,7 +14,6 @@ func main() {
 
 	c.Commands = commands.GetCmds(ui)
 
-	fmt.Println(c)
 	exitStatus, err := c.Run()
 	if err != nil {
 		log.Println(err)

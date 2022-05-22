@@ -1,7 +1,6 @@
 package transformers
 
 import (
-	"fmt"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +22,6 @@ func Test_Transformers_UsersTransformer_MapUsersResourceCollection(t *testing.T)
 	factory := NewTransformersFactory(infrastructure.NewFractalManager(), infrastructure.NewHashIds())
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := factory.MapUsersResourceCollection([]*models.User{user})
-	fmt.Println(result)
 	resultMap := result.([]interface{})
 	resultMapEl := resultMap[0].(map[string]interface{})
 	assert.NoError(t, err)
