@@ -1,6 +1,6 @@
 language: go
 go:
-  - "1.14"
+  - "1.16"
 
 before_install:
   - cp ./config.yml.dist ./config.yml
