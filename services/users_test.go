@@ -85,6 +85,149 @@ func Test_Services_UsersService_CheckIsUniqueEmailValid(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func Test_Services_UsersService_CreateSuccess(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{
+		RF: rf,
+		PG: infrastructure.NewPasswordGenerator(nil),
+	})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
+
+	mock.ExpectBegin()
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+
+	mock.ExpectCommit()
+
+	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
+	user, err := service.Create(ud)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), user.Id)
+	assert.Equal(t, ud.Name, user.Name)
+	assert.Equal(t, ud.Email, user.Email)
+	assert.NotEqual(t, ud.Password, user.Password)
+	assert.NotEmpty(t, user.CreatedAt)
+}
+
+func Test_Services_UsersService_CreateError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{
+		RF: rf,
+		PG: infrastructure.NewPasswordGenerator(nil),
+	})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
+
+	mock.ExpectBegin()
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+
+	mock.ExpectRollback()
+
+	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
+	user, err := service.Create(ud)
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Equal(t, `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+}
+
+func Test_Services_UsersService_CreateNotUniqueEmail(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{
+		RF: rf,
+		PG: infrastructure.NewPasswordGenerator(nil),
+	})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
+
+	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
+	user, err := service.Create(ud)
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Equal(t, `UsersService.Create: not unique user email`, err.Error())
+}
+
+func Test_Services_UsersService_EditSuccess(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{
+		RF: rf,
+	})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec(regexp.QuoteMeta(
+		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	mock.ExpectCommit()
+
+	ud := &dto.EditUserDTO{Name: "Name", Email: "foo@bar.baz"}
+	user, err := service.Edit(1, ud)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), user.Id)
+	assert.Equal(t, ud.Name, user.Name)
+	assert.Equal(t, ud.Email, user.Email)
+	assert.NotEmpty(t, user.ModifiedAt)
+}
+
+func Test_Services_UsersService_EditError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{
+		RF: rf,
+	})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users" WHERE email = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+
+	mock.ExpectBegin()
+
+	mock.ExpectExec(regexp.QuoteMeta(
+		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	mock.ExpectCommit()
+
+	ud := &dto.EditUserDTO{Name: "Name", Email: "foo@bar.baz"}
+	user, err := service.Edit(1, ud)
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Equal(t, `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
+}
+
 func Test_Services_UsersService_CheckIsUniqueEmailInvalid(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
