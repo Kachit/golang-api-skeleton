@@ -1,6 +1,7 @@
 package testable
 
 import (
+	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/lajosbencz/glo"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
@@ -65,6 +66,10 @@ func GetDatabaseMock() (*gorm.DB, sqlmock.Sqlmock) {
 
 	db, _ := gorm.Open(dialector, &gorm.Config{Logger: logger.Default.LogMode(logMode)})
 	return db, mock
+}
+
+func NewConfigMock() (*config.Config, error) {
+	return config.NewConfig("../config.yml")
 }
 
 func GetLoggerMock() *LoggerMock {

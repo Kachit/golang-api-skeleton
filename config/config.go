@@ -12,6 +12,8 @@ import (
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
 	Auth     AuthConfig     `mapstructure:"auth"`
+	Crypto   CryptoConfig   `mapstructure:"crypto"`
+	HashIds  HashIdsConfig  `mapstructure:"hashids"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Logger   LoggerConfig   `mapstructure:"logger"`
 }
@@ -19,6 +21,15 @@ type Config struct {
 type AppConfig struct {
 	Port  uint
 	Debug bool
+}
+
+type HashIdsConfig struct {
+	Length int
+	Salt   string
+}
+
+type CryptoConfig struct {
+	Cost int
 }
 
 type AuthConfig struct {

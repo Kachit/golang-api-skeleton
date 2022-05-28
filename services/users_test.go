@@ -41,6 +41,36 @@ func Test_Services_UsersService_GetListByFilterError(t *testing.T) {
 	assert.Equal(t, `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
+func Test_Services_UsersService_CountByFilterSuccess(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{RF: rf})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
+
+	result, err := service.CountByFilter()
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), result)
+}
+
+func Test_Services_UsersService_CountByFilterError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rf := models.NewRepositoriesFactory(db)
+	service := NewUsersService(&infrastructure.Container{RF: rf})
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
+
+	_, err := service.CountByFilter()
+	assert.Error(t, err)
+	assert.Equal(t, `UsersService.CountByFilter: UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+}
+
 func Test_Services_UsersService_GetByIdFound(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
@@ -86,11 +116,12 @@ func Test_Services_UsersService_CheckIsUniqueEmailValid(t *testing.T) {
 }
 
 func Test_Services_UsersService_CreateSuccess(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
 	service := NewUsersService(&infrastructure.Container{
 		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(nil),
+		PG: infrastructure.NewPasswordGenerator(cfg),
 	})
 	mock.MatchExpectationsInOrder(false)
 
@@ -117,11 +148,12 @@ func Test_Services_UsersService_CreateSuccess(t *testing.T) {
 }
 
 func Test_Services_UsersService_CreateError(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
 	service := NewUsersService(&infrastructure.Container{
 		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(nil),
+		PG: infrastructure.NewPasswordGenerator(cfg),
 	})
 	mock.MatchExpectationsInOrder(false)
 
@@ -145,11 +177,12 @@ func Test_Services_UsersService_CreateError(t *testing.T) {
 }
 
 func Test_Services_UsersService_CreateNotUniqueEmail(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
 	service := NewUsersService(&infrastructure.Container{
 		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(nil),
+		PG: infrastructure.NewPasswordGenerator(cfg),
 	})
 	mock.MatchExpectationsInOrder(false)
 
@@ -282,7 +315,8 @@ func Test_Services_UsersService_CheckIsUniqueEmailNotSameUserInvalid(t *testing.
 }
 
 func Test_Services_UsersService_BuildUserFromCreateUserDTO(t *testing.T) {
-	service := NewUsersService(&infrastructure.Container{PG: infrastructure.NewPasswordGenerator(nil)})
+	cfg, _ := testable.NewConfigMock()
+	service := NewUsersService(&infrastructure.Container{PG: infrastructure.NewPasswordGenerator(cfg)})
 	userDto := &dto.CreateUserDTO{Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	user, err := service.buildUserFromCreateUserDTO(userDto)
 	assert.NoError(t, err)

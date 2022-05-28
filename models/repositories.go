@@ -47,6 +47,15 @@ func (r *UsersRepository) GetListByFilter() ([]*User, error) {
 	return records, nil
 }
 
+func (r *UsersRepository) CountByFilter() (int64, error) {
+	var count int64
+	result := r.db.Model(&User{}).Unscoped().Count(&count)
+	if result.Error != nil {
+		return 0, fmt.Errorf("UsersRepository.CountByFilter: %v", result.Error)
+	}
+	return count, nil
+}
+
 func (r *UsersRepository) GetById(id uint64) (*User, error) {
 	var record User
 	result := r.db.Unscoped().Find(&record, id)

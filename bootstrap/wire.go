@@ -34,7 +34,7 @@ func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGen
 	return &infrastructure.PasswordGeneratorBCrypt{}, nil
 }
 
-func InitializeHashIds() (*infrastructure.HashIds, error) {
+func InitializeHashIds(cfg *config.Config) (*infrastructure.HashIds, error) {
 	wire.Build(infrastructure.NewHashIds)
 	return &infrastructure.HashIds{}, nil
 }

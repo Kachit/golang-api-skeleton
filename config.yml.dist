@@ -2,6 +2,13 @@ app:
   port: 8080
   debug: true
 
+crypto:
+  cost: 10
+
+hashids:
+  length: 10
+  salt: this is my salt
+
 auth:
   header: X-Auth-Token
   token: foo

@@ -85,6 +85,34 @@ func Test_Models_Repositories_UsersRepository_GetListByFilterError(t *testing.T)
 	assert.Equal(t, `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
+func Test_Models_Repositories_UsersRepository_CountByFilterSuccess(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
+
+	result, err := rep.CountByFilter()
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), result)
+}
+
+func Test_Models_Repositories_UsersRepository_CountByFilterError(t *testing.T) {
+	db, mock := testable.GetDatabaseMock()
+	rep := &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+
+	mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT count(*) FROM "users"`)).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
+
+	_, err := rep.CountByFilter()
+	assert.Error(t, err)
+	assert.Equal(t, `UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+}
+
 func Test_Models_Repositories_UsersRepository_GetByEmailFound(t *testing.T) {
 	db, mock := testable.GetDatabaseMock()
 	rep := &UsersRepository{db: db}

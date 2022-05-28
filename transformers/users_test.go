@@ -32,12 +32,13 @@ func Test_Transformers_UsersTransformer_ToUserFromPointer(t *testing.T) {
 }
 
 func Test_Transformers_UsersTransformer_TransformUserFull(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	createdAt, _ := time.Parse("2006-01-02 15:04:05", "2021-01-01 10:10:10")
 	modifiedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-02-01 10:10:10")
 	deletedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-03-01 10:10:10")
 	da := gorm.DeletedAt{Time: deletedAt}
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd", CreatedAt: createdAt, ModifiedAt: &modifiedAt, DeletedAt: da}
-	transformer := NewUsersTransformer(infrastructure.NewHashIds())
+	transformer := NewUsersTransformer(infrastructure.NewHashIds(cfg))
 	result := transformer.Transform(user)
 	assert.Equal(t, "ngB0NV05ev", result["id"])
 	assert.Equal(t, user.Name, result["name"])
@@ -48,8 +49,9 @@ func Test_Transformers_UsersTransformer_TransformUserFull(t *testing.T) {
 }
 
 func Test_Transformers_UsersTransformer_TransformUserSimple(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
-	transformer := NewUsersTransformer(infrastructure.NewHashIds())
+	transformer := NewUsersTransformer(infrastructure.NewHashIds(cfg))
 	result := transformer.Transform(user)
 	assert.Equal(t, "ngB0NV05ev", result["id"])
 	assert.Equal(t, user.Name, result["name"])
@@ -57,8 +59,9 @@ func Test_Transformers_UsersTransformer_TransformUserSimple(t *testing.T) {
 }
 
 func Test_Transformers_UsersTransformer_TransformAnotherStruct(t *testing.T) {
+	cfg, _ := testable.NewConfigMock()
 	user := &testable.StubUser{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
-	transformer := NewUsersTransformer(infrastructure.NewHashIds())
+	transformer := NewUsersTransformer(infrastructure.NewHashIds(cfg))
 	result := transformer.Transform(user)
 	assert.Empty(t, result)
 }

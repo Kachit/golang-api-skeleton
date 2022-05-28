@@ -44,8 +44,8 @@ func InitializePasswordGenerator(cfg *config.Config) (infrastructure.PasswordGen
 	return passwordGenerator, nil
 }
 
-func InitializeHashIds() (*infrastructure.HashIds, error) {
-	hashIds := infrastructure.NewHashIds()
+func InitializeHashIds(cfg *config.Config) (*infrastructure.HashIds, error) {
+	hashIds := infrastructure.NewHashIds(cfg)
 	return hashIds, nil
 }
 
@@ -87,7 +87,7 @@ func InitializeContainer(configPath string) (*infrastructure.Container, error) {
 	if err != nil {
 		return nil, err
 	}
-	hashIds, err := InitializeHashIds()
+	hashIds, err := InitializeHashIds(configConfig)
 	if err != nil {
 		return nil, err
 	}

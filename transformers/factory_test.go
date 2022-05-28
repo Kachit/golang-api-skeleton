@@ -3,12 +3,14 @@ package transformers
 import (
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models"
+	"github.com/kachit/golang-api-skeleton/testable"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func Test_Transformers_UsersTransformer_MapUsersResourceItem(t *testing.T) {
-	factory := NewTransformersFactory(infrastructure.NewFractalManager(), infrastructure.NewHashIds())
+	cfg, _ := testable.NewConfigMock()
+	factory := NewTransformersFactory(infrastructure.NewFractalManager(), infrastructure.NewHashIds(cfg))
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := factory.MapUsersResourceItem(user)
 	resultMap := result.(map[string]interface{})
@@ -19,7 +21,8 @@ func Test_Transformers_UsersTransformer_MapUsersResourceItem(t *testing.T) {
 }
 
 func Test_Transformers_UsersTransformer_MapUsersResourceCollection(t *testing.T) {
-	factory := NewTransformersFactory(infrastructure.NewFractalManager(), infrastructure.NewHashIds())
+	cfg, _ := testable.NewConfigMock()
+	factory := NewTransformersFactory(infrastructure.NewFractalManager(), infrastructure.NewHashIds(cfg))
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := factory.MapUsersResourceCollection([]*models.User{user})
 	resultMap := result.([]interface{})

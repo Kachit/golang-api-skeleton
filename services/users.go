@@ -26,6 +26,15 @@ func (us *UsersService) GetListByFilter() ([]*models.User, error) {
 	return users, nil
 }
 
+func (us *UsersService) CountByFilter() (int64, error) {
+	rep := us.rf.GetUsersRepository()
+	cnt, err := rep.CountByFilter()
+	if err != nil {
+		return 0, fmt.Errorf("UsersService.CountByFilter: %v", err)
+	}
+	return cnt, nil
+}
+
 func (us *UsersService) GetById(id uint64) (*models.User, error) {
 	rep := us.rf.GetUsersRepository()
 	user, err := rep.GetById(id)

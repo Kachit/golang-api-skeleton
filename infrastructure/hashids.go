@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/speps/go-hashids/v2"
 )
 
@@ -8,8 +9,8 @@ type HashIds struct {
 	*hashids.HashID
 }
 
-func NewHashIds() *HashIds {
-	return &HashIds{NewHashID("this is my salt", 10)}
+func NewHashIds(cfg *config.Config) *HashIds {
+	return &HashIds{NewHashID(cfg.HashIds.Salt, cfg.HashIds.Length)}
 }
 
 func (h HashIds) EncodeUint64(num uint64) (string, error) {

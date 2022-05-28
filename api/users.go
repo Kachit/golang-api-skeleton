@@ -33,12 +33,17 @@ func (a *UsersAPIResource) GetList(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.GetList: %v", err))
 		return
 	}
+	count, err := a.us.CountByFilter()
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.GetList: %v", err))
+		return
+	}
 	data, err := a.tf.MapUsersResourceCollection(collection)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("UsersAPIResource.GetList: %v", err))
 		return
 	}
-	body := rest.NewResponseBodyWithPagination(data, 0, len(collection))
+	body := rest.NewResponseBodyWithPagination(data, count, len(collection))
 	c.JSON(http.StatusOK, body)
 }
 
