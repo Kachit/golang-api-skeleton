@@ -6,337 +6,269 @@ import (
 	"github.com/kachit/golang-api-skeleton/models"
 	"github.com/kachit/golang-api-skeleton/testable"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/gorm"
 	"regexp"
 	"testing"
 )
 
-func Test_Services_UsersService_GetListByFilterSuccess(t *testing.T) {
+type Services_UsersService_TestSuite struct {
+	suite.Suite
+	db       *gorm.DB
+	mock     sqlmock.Sqlmock
+	testable *UsersService
+}
+
+func (suite *Services_UsersService_TestSuite) SetupTest() {
+	cfg, _ := testable.NewConfigMock()
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
+	suite.db = db
+	suite.mock = mock
+	suite.testable = NewUsersService(&infrastructure.Container{
+		RF: rf,
+		PG: infrastructure.NewPasswordGenerator(cfg),
+	})
 	mock.MatchExpectationsInOrder(false)
+}
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestGetListByFilterSuccess() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	result, err := service.GetListByFilter()
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), result[0].Id)
+	result, err := suite.testable.GetListByFilter()
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), result[0].Id)
 }
 
-func Test_Services_UsersService_GetListByFilterError(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestGetListByFilterError() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
 
-	_, err := service.GetListByFilter()
-	assert.Error(t, err)
-	assert.Equal(t, `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	result, err := suite.testable.GetListByFilter()
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func Test_Services_UsersService_CountByFilterSuccess(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCountByFilterSuccess() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
 
-	result, err := service.CountByFilter()
-	assert.NoError(t, err)
-	assert.Equal(t, int64(1), result)
+	result, err := suite.testable.CountByFilter()
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), int64(1), result)
 }
 
-func Test_Services_UsersService_CountByFilterError(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCountByFilterError() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
 
-	_, err := service.CountByFilter()
-	assert.Error(t, err)
-	assert.Equal(t, `UsersService.CountByFilter: UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+	result, err := suite.testable.CountByFilter()
+	assert.Empty(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), `UsersService.CountByFilter: UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func Test_Services_UsersService_GetByIdFound(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	bs := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestGetByIdFound() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	result, err := bs.GetById(123)
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), result.Id)
+	result, err := suite.testable.GetById(123)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), result.Id)
 }
 
-func Test_Services_UsersService_GetByIdNotFound(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestGetByIdNotFound() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
-	_, err := service.GetById(123)
-	assert.Error(t, err)
-	assert.Equal(t, "UsersService.GetById: UsersRepository.GetById: record not found", err.Error())
+	result, err := suite.testable.GetById(123)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "UsersService.GetById: UsersRepository.GetById: record not found", err.Error())
 }
 
-func Test_Services_UsersService_CheckIsUniqueEmailValid(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailValid() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
 
-	err := service.checkIsUniqueEmail("foo@bar.baz", nil)
-	assert.NoError(t, err)
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", nil)
+	assert.NoError(suite.T(), err)
 }
 
-func Test_Services_UsersService_CreateSuccess(t *testing.T) {
-	cfg, _ := testable.NewConfigMock()
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{
-		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(cfg),
-	})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCreateSuccess() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
 
-	mock.ExpectBegin()
+	suite.mock.ExpectBegin()
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	mock.ExpectCommit()
+	suite.mock.ExpectCommit()
 
 	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
-	user, err := service.Create(ud)
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), user.Id)
-	assert.Equal(t, ud.Name, user.Name)
-	assert.Equal(t, ud.Email, user.Email)
-	assert.NotEqual(t, ud.Password, user.Password)
-	assert.NotEmpty(t, user.CreatedAt)
+	user, err := suite.testable.Create(ud)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), user.Id)
+	assert.Equal(suite.T(), ud.Name, user.Name)
+	assert.Equal(suite.T(), ud.Email, user.Email)
+	assert.NotEqual(suite.T(), ud.Password, user.Password)
+	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
-func Test_Services_UsersService_CreateError(t *testing.T) {
-	cfg, _ := testable.NewConfigMock()
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{
-		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(cfg),
-	})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCreateError() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
 
-	mock.ExpectBegin()
+	suite.mock.ExpectBegin()
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
 
-	mock.ExpectRollback()
+	suite.mock.ExpectRollback()
 
 	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
-	user, err := service.Create(ud)
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	user, err := suite.testable.Create(ud)
+	assert.Error(suite.T(), err)
+	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func Test_Services_UsersService_CreateNotUniqueEmail(t *testing.T) {
-	cfg, _ := testable.NewConfigMock()
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{
-		RF: rf,
-		PG: infrastructure.NewPasswordGenerator(cfg),
-	})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCreateNotUniqueEmail() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
 
 	ud := &dto.CreateUserDTO{Name: "Name", Email: "foo@bar.baz", Password: "pwd"}
-	user, err := service.Create(ud)
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, `UsersService.Create: not unique user email`, err.Error())
+	user, err := suite.testable.Create(ud)
+	assert.Error(suite.T(), err)
+	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), `UsersService.Create: not unique user email`, err.Error())
 }
 
-func Test_Services_UsersService_EditSuccess(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{
-		RF: rf,
-	})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestEditSuccess() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	mock.ExpectBegin()
+	suite.mock.ExpectBegin()
 
-	mock.ExpectExec(regexp.QuoteMeta(
+	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	mock.ExpectCommit()
+	suite.mock.ExpectCommit()
 
 	ud := &dto.EditUserDTO{Name: "Name", Email: "foo@bar.baz"}
-	user, err := service.Edit(1, ud)
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), user.Id)
-	assert.Equal(t, ud.Name, user.Name)
-	assert.Equal(t, ud.Email, user.Email)
-	assert.NotEmpty(t, user.ModifiedAt)
+	user, err := suite.testable.Edit(1, ud)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), user.Id)
+	assert.Equal(suite.T(), ud.Name, user.Name)
+	assert.Equal(suite.T(), ud.Email, user.Email)
+	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 
-func Test_Services_UsersService_EditError(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{
-		RF: rf,
-	})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestEditError() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	mock.ExpectBegin()
+	suite.mock.ExpectBegin()
 
-	mock.ExpectExec(regexp.QuoteMeta(
+	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
-	mock.ExpectCommit()
+	suite.mock.ExpectCommit()
 
 	ud := &dto.EditUserDTO{Name: "Name", Email: "foo@bar.baz"}
-	user, err := service.Edit(1, ud)
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
+	user, err := suite.testable.Edit(1, ud)
+	assert.Error(suite.T(), err)
+	assert.Nil(suite.T(), user)
+	assert.Equal(suite.T(), `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
 }
 
-func Test_Services_UsersService_CheckIsUniqueEmailInvalid(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailInvalid() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
 
-	err := service.checkIsUniqueEmail("foo@bar.baz", nil)
-	assert.Error(t, err)
-	assert.Equal(t, "not unique user email", err.Error())
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", nil)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "not unique user email", err.Error())
 }
 
-func Test_Services_UsersService_CheckIsUniqueEmailDatabaseError(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailError() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
 
-	err := service.checkIsUniqueEmail("foo@bar.baz", nil)
-	assert.Error(t, err)
-	assert.Equal(t, `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", nil)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func Test_Services_UsersService_CheckIsUniqueEmailSameUserValid(t *testing.T) {
-	rf := models.NewRepositoriesFactory(nil)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-
-	err := service.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo@bar.baz"})
-	assert.NoError(t, err)
+func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailSameUserValid() {
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo@bar.baz"})
+	assert.NoError(suite.T(), err)
 }
 
-func Test_Services_UsersService_CheckIsUniqueEmailNotSameUserInvalid(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
-	service := NewUsersService(&infrastructure.Container{RF: rf})
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailNotSameUserInvalid() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
 
-	err := service.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo1@bar.baz"})
-	assert.Error(t, err)
-	assert.Equal(t, "not unique user email", err.Error())
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo1@bar.baz"})
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "not unique user email", err.Error())
 }
 
-func Test_Services_UsersService_BuildUserFromCreateUserDTO(t *testing.T) {
-	cfg, _ := testable.NewConfigMock()
-	service := NewUsersService(&infrastructure.Container{PG: infrastructure.NewPasswordGenerator(cfg)})
+func (suite *Services_UsersService_TestSuite) TestBuildUserFromCreateUserDTO() {
 	userDto := &dto.CreateUserDTO{Name: "name", Email: "foo@bar.baz", Password: "pwd"}
-	user, err := service.buildUserFromCreateUserDTO(userDto)
-	assert.NoError(t, err)
-	assert.Equal(t, userDto.Name, user.Name)
-	assert.Equal(t, userDto.Email, user.Email)
-	assert.Equal(t, userDto.Password, user.Password)
+	user, err := suite.testable.buildUserFromCreateUserDTO(userDto)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), userDto.Name, user.Name)
+	assert.Equal(suite.T(), userDto.Email, user.Email)
+	assert.Equal(suite.T(), userDto.Password, user.Password)
 
-	assert.Empty(t, user.Id)
-	assert.Empty(t, user.CreatedAt)
+	assert.Empty(suite.T(), user.Id)
+	assert.Empty(suite.T(), user.CreatedAt)
 }
 
-func Test_Services_UsersService_FillUserFromEditUserDTO(t *testing.T) {
-	service := NewUsersService(&infrastructure.Container{})
+func (suite *Services_UsersService_TestSuite) TestFillUserFromEditUserDTO() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	userDto := &dto.EditUserDTO{Name: "name1", Email: "foo1@bar.baz"}
-	user, err := service.fillUserFromEditUserDTO(user, userDto)
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), user.Id)
-	assert.Equal(t, userDto.Name, user.Name)
-	assert.Equal(t, userDto.Email, user.Email)
-	assert.Equal(t, "pwd", user.Password)
-	assert.Empty(t, user.CreatedAt)
+	user, err := suite.testable.fillUserFromEditUserDTO(user, userDto)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), user.Id)
+	assert.Equal(suite.T(), userDto.Name, user.Name)
+	assert.Equal(suite.T(), userDto.Email, user.Email)
+	assert.Equal(suite.T(), "pwd", user.Password)
+	assert.Empty(suite.T(), user.CreatedAt)
+}
+
+func Test_Services_UsersService_TestSuite(t *testing.T) {
+	suite.Run(t, new(Services_UsersService_TestSuite))
 }
