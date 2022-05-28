@@ -94,7 +94,6 @@ func (s *ServerAPICommand) RunServer() error {
 	router := gin.Default()
 	router.Use(middlewareFactory.BuildCorsMiddleware())
 	router.Use(middlewareFactory.BuildHttpErrorHandlerMiddleware())
-	router.Use(middlewareFactory.BuildTokenAuthMiddleware())
 	router.NoRoute(errorsResource.NotFoundHandler)
 	router.NoMethod(errorsResource.NotAllowedMethodHandler)
 	//
@@ -111,9 +110,9 @@ func (s *ServerAPICommand) RunServer() error {
 		}
 	}
 
-	apiRoutesV1 := router.Group("/v1")
+	apiRoutesPrivate := router.Group("/v1", middlewareFactory.BuildTokenAuthMiddleware())
 	{
-		users := apiRoutesV1.Group("/users")
+		users := apiRoutesPrivate.Group("/users")
 		{
 			users.GET("", usersApi.GetList)
 			users.GET("/:id", usersApi.GetById)

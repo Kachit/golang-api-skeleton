@@ -23,7 +23,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndV1UrlPath(t *test
 	assert.Equal(t, http.StatusOK, c.Writer.Status())
 }
 
-func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndNonV1UrlPathAndEmptyToken(t *testing.T) {
+func Test_Middleware_TokenAuthMiddlewareInvalidWithEnabledAuthAndNonV1UrlPathAndEmptyToken(t *testing.T) {
 	token := "foo"
 	header := "X-Auth-Token"
 	gin.SetMode(gin.ReleaseMode)
@@ -33,7 +33,7 @@ func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndNonV1UrlPathAndEm
 	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
 	mdl := TokenAuthMiddleware(cfg, nil)
 	mdl(c)
-	assert.Equal(t, http.StatusOK, c.Writer.Status())
+	assert.Equal(t, http.StatusUnauthorized, c.Writer.Status())
 }
 
 func Test_Middleware_TokenAuthMiddlewareValidWithDisabledAuthAndEmptyToken(t *testing.T) {

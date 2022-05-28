@@ -6,7 +6,6 @@ import (
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"net/http"
-	"strings"
 )
 
 func TokenAuthMiddleware(config *config.AuthConfig, logger infrastructure.Logger) gin.HandlerFunc {
@@ -14,8 +13,7 @@ func TokenAuthMiddleware(config *config.AuthConfig, logger infrastructure.Logger
 	tokenHeader := config.Header
 
 	return func(c *gin.Context) {
-		path := c.Request.URL.Path
-		if config.Enabled && strings.Contains(path, "/v1/") {
+		if config.Enabled {
 			token := c.Request.Header.Get(tokenHeader)
 
 			if requiredToken == "" || tokenHeader == "" {
