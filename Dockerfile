@@ -11,6 +11,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN go build .
 
-CMD ["./main"]
+CMD ["./golang-api-skeleton"]

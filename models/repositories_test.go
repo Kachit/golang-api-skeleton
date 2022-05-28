@@ -3,7 +3,9 @@ package models
 import (
 	"github.com/kachit/golang-api-skeleton/testable"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/gorm"
 	"regexp"
 	"testing"
 )
@@ -15,32 +17,43 @@ func Test_Models_Repositories_RepositoriesFactory_GetUsersRepository(t *testing.
 	assert.NotEmpty(t, rep)
 }
 
-func Test_Models_Repositories_UsersRepository_GetByIdFound(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rep := &UsersRepository{db: db}
-	mock.MatchExpectationsInOrder(false)
+type Models_Repositories_UsersRepository_TestSuite struct {
+	suite.Suite
+	db       *gorm.DB
+	mock     sqlmock.Sqlmock
+	testable *UsersRepository
+}
 
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Models_Repositories_UsersRepository_TestSuite) SetupTest() {
+	db, mock := testable.GetDatabaseMock()
+	suite.db = db
+	suite.mock = mock
+	suite.testable = &UsersRepository{db: db}
+	mock.MatchExpectationsInOrder(false)
+}
+
+func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdFound() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	result, err := rep.GetById(123)
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), result.Id)
+	result, err := suite.testable.GetById(123)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), uint64(1), result.Id)
 }
 
-func Test_Models_Repositories_UsersRepository_GetByIdNotFound(t *testing.T) {
-	db, mock := testable.GetDatabaseMock()
-	rep := &UsersRepository{db: db}
-	mock.MatchExpectationsInOrder(false)
-
-	mock.ExpectQuery(regexp.QuoteMeta(
+func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdNotFound() {
+	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
-	_, err := rep.GetById(123)
-	assert.Error(t, err)
-	assert.Equal(t, "UsersRepository.GetById: record not found", err.Error())
+	_, err := suite.testable.GetById(123)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "UsersRepository.GetById: record not found", err.Error())
+}
+
+func Test_Models_Repositories_UsersRepository_TestSuite(t *testing.T) {
+	suite.Run(t, new(Models_Repositories_UsersRepository_TestSuite))
 }
 
 func Test_Models_Repositories_UsersRepository_GetByIdError(t *testing.T) {
