@@ -12,8 +12,9 @@ import (
 
 type MiddlewareTokenAuthMiddlewareTestSuite struct {
 	suite.Suite
-	cfg *config.AuthConfig
-	gin *gin.Context
+	cfg      *config.AuthConfig
+	gin      *gin.Context
+	testable gin.HandlerFunc
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) SetupTest() {
@@ -22,43 +23,39 @@ func (suite *MiddlewareTokenAuthMiddlewareTestSuite) SetupTest() {
 	c, _ := gin.CreateTestContext(w)
 	suite.gin = c
 	suite.cfg = &config.AuthConfig{Enabled: true, Header: "X-Auth-Token", Token: "foo"}
+	suite.testable = TokenAuthMiddleware(suite.cfg, nil)
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestValidWithEnabledAuthAndV1UrlPath() {
 	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	suite.gin.Request.Header.Add(suite.cfg.Header, suite.cfg.Token)
-	mdl := TokenAuthMiddleware(suite.cfg, nil)
-	mdl(suite.gin)
+	suite.testable(suite.gin)
 	assert.Equal(suite.T(), http.StatusOK, suite.gin.Writer.Status())
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithEnabledAuthAndNonV1UrlPathAndEmptyToken() {
 	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/health-check", nil)
-	mdl := TokenAuthMiddleware(suite.cfg, nil)
-	mdl(suite.gin)
+	suite.testable(suite.gin)
 	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestValidWithDisabledAuthAndEmptyToken() {
 	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	suite.cfg.Enabled = false
-	mdl := TokenAuthMiddleware(suite.cfg, nil)
-	mdl(suite.gin)
+	suite.testable(suite.gin)
 	assert.Equal(suite.T(), http.StatusOK, suite.gin.Writer.Status())
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithEmptyToken() {
 	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	mdl := TokenAuthMiddleware(suite.cfg, nil)
-	mdl(suite.gin)
+	suite.testable(suite.gin)
 	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
 }
 
 func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithWrongToken() {
 	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
 	suite.gin.Request.Header.Add(suite.cfg.Header, suite.cfg.Token+"qwerty")
-	mdl := TokenAuthMiddleware(suite.cfg, nil)
-	mdl(suite.gin)
+	suite.testable(suite.gin)
 	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
 }
 

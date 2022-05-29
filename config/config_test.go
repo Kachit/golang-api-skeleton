@@ -21,12 +21,12 @@ func (suite *ConfigTestSuite) TestNewConfigWrongFile() {
 	assert.Empty(suite.T(), cfg)
 }
 
-func (suite *ConfigTestSuite) TestGetAPIPort() {
+func (suite *ConfigTestSuite) TestConfigGetAPIPort() {
 	cfg, _ := NewConfig("../config.yml")
 	assert.Equal(suite.T(), ":8080", cfg.GetAppPort())
 }
 
-func (suite *ConfigTestSuite) TestGetDatabaseDsn() {
+func (suite *ConfigTestSuite) TestConfigGetDatabaseDsn() {
 	cfg, _ := NewConfig("../config.yml")
 	cfg.Database.User = "example_user"
 	cfg.Database.Name = "example_db"

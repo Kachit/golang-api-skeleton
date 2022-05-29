@@ -4,36 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func Test_Rest_NewResponseBody(t *testing.T) {
+type RestTestSuite struct {
+	suite.Suite
+}
+
+func (suite *RestTestSuite) TestNewResponseBody() {
 	data := map[string]string{"foo": "bar"}
 	result := NewResponseBody(data)
 	bytesArr, _ := json.Marshal(result)
-	assert.True(t, result.Result)
-	assert.Equal(t, data, result.Data)
-	assert.Nil(t, result.Meta)
-	assert.Empty(t, result.Error)
-	assert.Equal(t, `{"result":true,"data":{"foo":"bar"},"meta":null,"error":""}`, string(bytesArr))
+	assert.True(suite.T(), result.Result)
+	assert.Equal(suite.T(), data, result.Data)
+	assert.Nil(suite.T(), result.Meta)
+	assert.Empty(suite.T(), result.Error)
+	assert.Equal(suite.T(), `{"result":true,"data":{"foo":"bar"},"meta":null,"error":""}`, string(bytesArr))
 }
 
-func Test_Rest_NewResponseBodyError(t *testing.T) {
+func (suite *RestTestSuite) TestNewResponseBodyError() {
 	result := NewResponseBodyError(fmt.Errorf("foo"))
 	bytesArr, _ := json.Marshal(result)
-	assert.False(t, result.Result)
-	assert.Nil(t, result.Data)
-	assert.Nil(t, result.Meta)
-	assert.Equal(t, "foo", result.Error)
-	assert.Equal(t, `{"result":false,"data":null,"meta":null,"error":"foo"}`, string(bytesArr))
+	assert.False(suite.T(), result.Result)
+	assert.Nil(suite.T(), result.Data)
+	assert.Nil(suite.T(), result.Meta)
+	assert.Equal(suite.T(), "foo", result.Error)
+	assert.Equal(suite.T(), `{"result":false,"data":null,"meta":null,"error":"foo"}`, string(bytesArr))
 }
 
-func Test_Rest_NewResponseBodyWithPagination(t *testing.T) {
+func (suite *RestTestSuite) TestNewResponseBodyWithPagination() {
 	data := map[string]string{"foo": "bar"}
 	result := NewResponseBodyWithPagination(data, 100, 10)
 	bytesArr, _ := json.Marshal(result)
-	assert.True(t, result.Result)
-	assert.Equal(t, data, result.Data)
-	assert.Empty(t, result.Error)
-	assert.Equal(t, `{"result":true,"data":{"foo":"bar"},"meta":{"pagination":{"total":100,"count":10}},"error":""}`, string(bytesArr))
+	assert.True(suite.T(), result.Result)
+	assert.Equal(suite.T(), data, result.Data)
+	assert.Empty(suite.T(), result.Error)
+	assert.Equal(suite.T(), `{"result":true,"data":{"foo":"bar"},"meta":{"pagination":{"total":100,"count":10}},"error":""}`, string(bytesArr))
+}
+
+func TestRestTestSuite(t *testing.T) {
+	suite.Run(t, new(RestTestSuite))
 }
