@@ -10,37 +10,37 @@ import (
 	"testing"
 )
 
-type Models_Repositories_RepositoriesFactory_TestSuite struct {
+type ModelsRepositoriesRepositoriesFactoryTestSuite struct {
 	suite.Suite
 	db       *gorm.DB
 	mock     sqlmock.Sqlmock
 	testable *RepositoriesFactory
 }
 
-func (suite *Models_Repositories_RepositoriesFactory_TestSuite) SetupTest() {
+func (suite *ModelsRepositoriesRepositoriesFactoryTestSuite) SetupTest() {
 	db, mock := testable.GetDatabaseMock()
 	suite.db = db
 	suite.mock = mock
 	suite.testable = NewRepositoriesFactory(db)
 }
 
-func (suite *Models_Repositories_RepositoriesFactory_TestSuite) TestGetUsersRepository() {
+func (suite *ModelsRepositoriesRepositoriesFactoryTestSuite) TestGetUsersRepository() {
 	result := suite.testable.GetUsersRepository()
 	assert.NotEmpty(suite.T(), result)
 }
 
-func Test_Models_Repositories_RepositoriesFactory_TestSuite(t *testing.T) {
-	suite.Run(t, new(Models_Repositories_RepositoriesFactory_TestSuite))
+func TestModelsRepositoriesRepositoriesFactoryTestSuite(t *testing.T) {
+	suite.Run(t, new(ModelsRepositoriesRepositoriesFactoryTestSuite))
 }
 
-type Models_Repositories_UsersRepository_TestSuite struct {
+type ModelsRepositoriesUsersRepositoryTestSuite struct {
 	suite.Suite
 	db       *gorm.DB
 	mock     sqlmock.Sqlmock
 	testable *UsersRepository
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) SetupTest() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) SetupTest() {
 	db, mock := testable.GetDatabaseMock()
 	suite.db = db
 	suite.mock = mock
@@ -48,7 +48,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) SetupTest() {
 	mock.MatchExpectationsInOrder(false)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdFound() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -58,7 +58,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdFound() {
 	assert.Equal(suite.T(), uint64(1), result.Id)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdNotFound() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdNotFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
@@ -69,7 +69,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdNotFound(
 	assert.Equal(suite.T(), "UsersRepository.GetById: record not found", err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
@@ -80,7 +80,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByIdError() {
 	assert.Equal(suite.T(), `UsersRepository.GetById: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetListByFilterSuccess() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -90,7 +90,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetListByFilterS
 	assert.Equal(suite.T(), uint64(1), result[0].Id)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetListByFilterError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
@@ -101,7 +101,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetListByFilterE
 	assert.Equal(suite.T(), `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByFilterSuccess() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -111,7 +111,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByFilterSuc
 	assert.Equal(suite.T(), int64(1), result)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByFilterError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
@@ -122,7 +122,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByFilterErr
 	assert.Equal(suite.T(), `UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailFound() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -132,7 +132,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailFound(
 	assert.Equal(suite.T(), uint64(1), result.Id)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailNotFound() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailNotFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
@@ -143,7 +143,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailNotFou
 	assert.Equal(suite.T(), "UsersRepository.GetByEmail: record not found", err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
@@ -154,7 +154,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestGetByEmailError(
 	assert.Equal(suite.T(), `UsersRepository.GetByEmail: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByEmailSuccess() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -164,7 +164,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByEmailSucc
 	assert.Equal(suite.T(), int64(1), result)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByEmailError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
@@ -175,7 +175,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCountByEmailErro
 	assert.Equal(suite.T(), `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCreateSuccess() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateSuccess() {
 	suite.mock.ExpectBegin()
 
 	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
@@ -192,7 +192,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCreateSuccess() 
 	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestCreateError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateError() {
 	suite.mock.ExpectBegin()
 
 	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
@@ -209,7 +209,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestCreateError() {
 	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestEditSuccess() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditSuccess() {
 	suite.mock.ExpectBegin()
 
 	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
@@ -225,7 +225,7 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestEditSuccess() {
 	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 
-func (suite *Models_Repositories_UsersRepository_TestSuite) TestEditError() {
+func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditError() {
 	suite.mock.ExpectBegin()
 
 	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
@@ -242,6 +242,6 @@ func (suite *Models_Repositories_UsersRepository_TestSuite) TestEditError() {
 	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 
-func Test_Models_Repositories_UsersRepository_TestSuite(t *testing.T) {
-	suite.Run(t, new(Models_Repositories_UsersRepository_TestSuite))
+func TestModelsRepositoriesUsersRepositoryTestSuite(t *testing.T) {
+	suite.Run(t, new(ModelsRepositoriesUsersRepositoryTestSuite))
 }

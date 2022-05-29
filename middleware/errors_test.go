@@ -3,13 +3,33 @@ package middleware
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/testable"
 	"github.com/lajosbencz/glo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+type MiddlewareHttpErrorHandlerMiddlewareTestSuite struct {
+	suite.Suite
+	logger infrastructure.Logger
+	gin    *gin.Context
+}
+
+func (suite *MiddlewareHttpErrorHandlerMiddlewareTestSuite) SetupTest() {
+	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
+	c, _ := gin.CreateTestContext(w)
+	suite.gin = c
+	suite.logger = testable.GetLoggerMock()
+}
+
+func TestMiddlewareHttpErrorHandlerMiddlewareTestSuite(t *testing.T) {
+	suite.Run(t, new(MiddlewareHttpErrorHandlerMiddlewareTestSuite))
+}
 
 func Test_Middleware_HttpErrorHandlerMiddlewareSuccess(t *testing.T) {
 	w := httptest.NewRecorder()

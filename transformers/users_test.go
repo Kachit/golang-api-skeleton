@@ -12,19 +12,19 @@ import (
 	"time"
 )
 
-type Transformers_UsersTransformer_TestSuite struct {
+type TransformersUsersTransformerTestSuite struct {
 	suite.Suite
 	hashIds  *infrastructure.HashIds
 	testable *UsersTransformer
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) SetupTest() {
+func (suite *TransformersUsersTransformerTestSuite) SetupTest() {
 	cfg, _ := testable.NewConfigMock()
 	suite.hashIds = infrastructure.NewHashIds(cfg)
 	suite.testable = NewUsersTransformer(suite.hashIds)
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestToUserFromStruct() {
+func (suite *TransformersUsersTransformerTestSuite) TestToUserFromStruct() {
 	user := models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.toUser(fractal.Any(user))
 	assert.Equal(suite.T(), user.Id, result.Id)
@@ -33,7 +33,7 @@ func (suite *Transformers_UsersTransformer_TestSuite) TestToUserFromStruct() {
 	assert.Equal(suite.T(), user.Password, result.Password)
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestToUserFromPointer() {
+func (suite *TransformersUsersTransformerTestSuite) TestToUserFromPointer() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.toUser(fractal.Any(user))
 	assert.Equal(suite.T(), user.Id, result.Id)
@@ -42,7 +42,7 @@ func (suite *Transformers_UsersTransformer_TestSuite) TestToUserFromPointer() {
 	assert.Equal(suite.T(), user.Password, result.Password)
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUserFull() {
+func (suite *TransformersUsersTransformerTestSuite) TestTransformUserFull() {
 	createdAt, _ := time.Parse("2006-01-02 15:04:05", "2021-01-01 10:10:10")
 	modifiedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-02-01 10:10:10")
 	deletedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-03-01 10:10:10")
@@ -57,7 +57,7 @@ func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUserFull() {
 	assert.Equal(suite.T(), deletedAt, result["deleted_at"])
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUserSimple() {
+func (suite *TransformersUsersTransformerTestSuite) TestTransformUserSimple() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.Transform(user)
 	assert.Equal(suite.T(), "ngB0NV05ev", result["id"])
@@ -65,13 +65,13 @@ func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUserSimple() 
 	assert.Equal(suite.T(), user.Email, result["email"])
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestTransformAnotherStruct() {
+func (suite *TransformersUsersTransformerTestSuite) TestTransformAnotherStruct() {
 	user := &testable.StubUser{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.Transform(user)
 	assert.Empty(suite.T(), result)
 }
 
-func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUsersToFractal() {
+func (suite *TransformersUsersTransformerTestSuite) TestTransformUsersToFractal() {
 	users := []*models.User{{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}}
 	result := transformUsersToFractal(users)
 	fractalUser := result[0].(models.User)
@@ -81,6 +81,6 @@ func (suite *Transformers_UsersTransformer_TestSuite) TestTransformUsersToFracta
 	assert.Equal(suite.T(), users[0].Password, fractalUser.Password)
 }
 
-func Test_Transformers_UsersTransformer_TestSuite(t *testing.T) {
-	suite.Run(t, new(Transformers_UsersTransformer_TestSuite))
+func TestTransformersUsersTransformerTestSuite(t *testing.T) {
+	suite.Run(t, new(TransformersUsersTransformerTestSuite))
 }

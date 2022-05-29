@@ -2,29 +2,38 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func Test_Config_NewConfig(t *testing.T) {
-	cfg, _ := NewConfig("../config.yml")
-	assert.IsType(t, (*Config)(nil), cfg)
+type ConfigTestSuite struct {
+	suite.Suite
 }
 
-func Test_Config_NewConfigWrongFile(t *testing.T) {
+func (suite *ConfigTestSuite) TestNewConfig() {
+	cfg, _ := NewConfig("../config.yml")
+	assert.IsType(suite.T(), (*Config)(nil), cfg)
+}
+
+func (suite *ConfigTestSuite) TestNewConfigWrongFile() {
 	cfg, err := NewConfig("../config-foo.yml")
-	assert.Error(t, err)
-	assert.Empty(t, cfg)
+	assert.Error(suite.T(), err)
+	assert.Empty(suite.T(), cfg)
 }
 
-func Test_Config_GetAPIPort(t *testing.T) {
+func (suite *ConfigTestSuite) TestGetAPIPort() {
 	cfg, _ := NewConfig("../config.yml")
-	assert.Equal(t, ":8080", cfg.GetAppPort())
+	assert.Equal(suite.T(), ":8080", cfg.GetAppPort())
 }
 
-func Test_Config_GetDatabaseDsn(t *testing.T) {
+func (suite *ConfigTestSuite) TestGetDatabaseDsn() {
 	cfg, _ := NewConfig("../config.yml")
 	cfg.Database.User = "example_user"
 	cfg.Database.Name = "example_db"
 	cfg.Database.Port = 54321
-	assert.Equal(t, "host=127.0.0.1 port=54321 user=example_user dbname=example_db password=12345 sslmode=disable", cfg.GetDatabaseDsn())
+	assert.Equal(suite.T(), "host=127.0.0.1 port=54321 user=example_user dbname=example_db password=12345 sslmode=disable", cfg.GetDatabaseDsn())
+}
+
+func TestConfigTestSuite(t *testing.T) {
+	suite.Run(t, new(ConfigTestSuite))
 }

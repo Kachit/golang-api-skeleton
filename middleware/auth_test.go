@@ -4,88 +4,73 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func Test_Middleware_TokenAuthMiddlewareValidWithEnabledAuthAndV1UrlPath(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	c.Request.Header.Add(header, token)
-	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusOK, c.Writer.Status())
+type MiddlewareTokenAuthMiddlewareTestSuite struct {
+	suite.Suite
+	cfg *config.AuthConfig
+	gin *gin.Context
 }
 
-func Test_Middleware_TokenAuthMiddlewareInvalidWithEnabledAuthAndNonV1UrlPathAndEmptyToken(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) SetupTest() {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/health-check", nil)
-	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusUnauthorized, c.Writer.Status())
+	suite.gin = c
+	suite.cfg = &config.AuthConfig{Enabled: true, Header: "X-Auth-Token", Token: "foo"}
 }
 
-func Test_Middleware_TokenAuthMiddlewareValidWithDisabledAuthAndEmptyToken(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	cfg := &config.AuthConfig{Enabled: false, Header: header, Token: token}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusOK, c.Writer.Status())
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestValidWithEnabledAuthAndV1UrlPath() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
+	suite.gin.Request.Header.Add(suite.cfg.Header, suite.cfg.Token)
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusOK, suite.gin.Writer.Status())
 }
 
-func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyToken(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusUnauthorized, c.Writer.Status())
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithEnabledAuthAndNonV1UrlPathAndEmptyToken() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/health-check", nil)
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
 }
 
-func Test_Middleware_TokenAuthMiddlewareInvalidWithWrongToken(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	c.Request.Header.Add(header, token+token)
-	cfg := &config.AuthConfig{Enabled: true, Header: header, Token: token}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusUnauthorized, c.Writer.Status())
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestValidWithDisabledAuthAndEmptyToken() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
+	suite.cfg.Enabled = false
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusOK, suite.gin.Writer.Status())
 }
 
-func Test_Middleware_TokenAuthMiddlewareInvalidWithEmptyTokenInConfig(t *testing.T) {
-	token := "foo"
-	header := "X-Auth-Token"
-	gin.SetMode(gin.ReleaseMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
-	c.Request.Header.Add(header, token)
-	cfg := &config.AuthConfig{Enabled: true}
-	mdl := TokenAuthMiddleware(cfg, nil)
-	mdl(c)
-	assert.Equal(t, http.StatusInternalServerError, c.Writer.Status())
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithEmptyToken() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
+}
+
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithWrongToken() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
+	suite.gin.Request.Header.Add(suite.cfg.Header, suite.cfg.Token+"qwerty")
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusUnauthorized, suite.gin.Writer.Status())
+}
+
+func (suite *MiddlewareTokenAuthMiddlewareTestSuite) TestInvalidWithEmptyTokenInConfig() {
+	suite.gin.Request, _ = http.NewRequest("POST", "http://foo.bar/v1/users", nil)
+	suite.gin.Request.Header.Add(suite.cfg.Header, suite.cfg.Token)
+	suite.cfg.Token = ""
+	mdl := TokenAuthMiddleware(suite.cfg, nil)
+	mdl(suite.gin)
+	assert.Equal(suite.T(), http.StatusInternalServerError, suite.gin.Writer.Status())
+}
+
+func TestMiddlewareTokenAuthMiddlewareTestSuite(t *testing.T) {
+	suite.Run(t, new(MiddlewareTokenAuthMiddlewareTestSuite))
 }

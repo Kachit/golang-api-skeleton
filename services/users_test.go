@@ -13,14 +13,14 @@ import (
 	"testing"
 )
 
-type Services_UsersService_TestSuite struct {
+type ServicesUsersServiceTestSuite struct {
 	suite.Suite
 	db       *gorm.DB
 	mock     sqlmock.Sqlmock
 	testable *UsersService
 }
 
-func (suite *Services_UsersService_TestSuite) SetupTest() {
+func (suite *ServicesUsersServiceTestSuite) SetupTest() {
 	cfg, _ := testable.NewConfigMock()
 	db, mock := testable.GetDatabaseMock()
 	rf := models.NewRepositoriesFactory(db)
@@ -33,7 +33,7 @@ func (suite *Services_UsersService_TestSuite) SetupTest() {
 	mock.MatchExpectationsInOrder(false)
 }
 
-func (suite *Services_UsersService_TestSuite) TestGetListByFilterSuccess() {
+func (suite *ServicesUsersServiceTestSuite) TestGetListByFilterSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -43,7 +43,7 @@ func (suite *Services_UsersService_TestSuite) TestGetListByFilterSuccess() {
 	assert.Equal(suite.T(), uint64(1), result[0].Id)
 }
 
-func (suite *Services_UsersService_TestSuite) TestGetListByFilterError() {
+func (suite *ServicesUsersServiceTestSuite) TestGetListByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
@@ -54,7 +54,7 @@ func (suite *Services_UsersService_TestSuite) TestGetListByFilterError() {
 	assert.Equal(suite.T(), `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCountByFilterSuccess() {
+func (suite *ServicesUsersServiceTestSuite) TestCountByFilterSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -64,7 +64,7 @@ func (suite *Services_UsersService_TestSuite) TestCountByFilterSuccess() {
 	assert.Equal(suite.T(), int64(1), result)
 }
 
-func (suite *Services_UsersService_TestSuite) TestCountByFilterError() {
+func (suite *ServicesUsersServiceTestSuite) TestCountByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
@@ -75,7 +75,7 @@ func (suite *Services_UsersService_TestSuite) TestCountByFilterError() {
 	assert.Equal(suite.T(), `UsersService.CountByFilter: UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestGetByIdFound() {
+func (suite *ServicesUsersServiceTestSuite) TestGetByIdFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
@@ -85,7 +85,7 @@ func (suite *Services_UsersService_TestSuite) TestGetByIdFound() {
 	assert.Equal(suite.T(), uint64(1), result.Id)
 }
 
-func (suite *Services_UsersService_TestSuite) TestGetByIdNotFound() {
+func (suite *ServicesUsersServiceTestSuite) TestGetByIdNotFound() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
@@ -96,7 +96,7 @@ func (suite *Services_UsersService_TestSuite) TestGetByIdNotFound() {
 	assert.Equal(suite.T(), "UsersService.GetById: UsersRepository.GetById: record not found", err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailValid() {
+func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailValid() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
@@ -105,7 +105,7 @@ func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailValid() {
 	assert.NoError(suite.T(), err)
 }
 
-func (suite *Services_UsersService_TestSuite) TestCreateSuccess() {
+func (suite *ServicesUsersServiceTestSuite) TestCreateSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
@@ -128,7 +128,7 @@ func (suite *Services_UsersService_TestSuite) TestCreateSuccess() {
 	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
-func (suite *Services_UsersService_TestSuite) TestCreateError() {
+func (suite *ServicesUsersServiceTestSuite) TestCreateError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
@@ -148,7 +148,7 @@ func (suite *Services_UsersService_TestSuite) TestCreateError() {
 	assert.Equal(suite.T(), `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCreateNotUniqueEmail() {
+func (suite *ServicesUsersServiceTestSuite) TestCreateNotUniqueEmail() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -160,7 +160,7 @@ func (suite *Services_UsersService_TestSuite) TestCreateNotUniqueEmail() {
 	assert.Equal(suite.T(), `UsersService.Create: not unique user email`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestEditSuccess() {
+func (suite *ServicesUsersServiceTestSuite) TestEditSuccess() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
@@ -186,7 +186,7 @@ func (suite *Services_UsersService_TestSuite) TestEditSuccess() {
 	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 
-func (suite *Services_UsersService_TestSuite) TestEditError() {
+func (suite *ServicesUsersServiceTestSuite) TestEditError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}))
@@ -210,7 +210,7 @@ func (suite *Services_UsersService_TestSuite) TestEditError() {
 	assert.Equal(suite.T(), `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailInvalid() {
+func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailInvalid() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -220,7 +220,7 @@ func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailInvalid() {
 	assert.Equal(suite.T(), "not unique user email", err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailError() {
+func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
@@ -230,12 +230,12 @@ func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailError() {
 	assert.Equal(suite.T(), `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailSameUserValid() {
+func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailSameUserValid() {
 	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo@bar.baz"})
 	assert.NoError(suite.T(), err)
 }
 
-func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailNotSameUserInvalid() {
+func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailNotSameUserInvalid() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
@@ -245,7 +245,7 @@ func (suite *Services_UsersService_TestSuite) TestCheckIsUniqueEmailNotSameUserI
 	assert.Equal(suite.T(), "not unique user email", err.Error())
 }
 
-func (suite *Services_UsersService_TestSuite) TestBuildUserFromCreateUserDTO() {
+func (suite *ServicesUsersServiceTestSuite) TestBuildUserFromCreateUserDTO() {
 	userDto := &dto.CreateUserDTO{Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	user, err := suite.testable.buildUserFromCreateUserDTO(userDto)
 	assert.NoError(suite.T(), err)
@@ -257,7 +257,7 @@ func (suite *Services_UsersService_TestSuite) TestBuildUserFromCreateUserDTO() {
 	assert.Empty(suite.T(), user.CreatedAt)
 }
 
-func (suite *Services_UsersService_TestSuite) TestFillUserFromEditUserDTO() {
+func (suite *ServicesUsersServiceTestSuite) TestFillUserFromEditUserDTO() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	userDto := &dto.EditUserDTO{Name: "name1", Email: "foo1@bar.baz"}
 	user, err := suite.testable.fillUserFromEditUserDTO(user, userDto)
@@ -269,6 +269,6 @@ func (suite *Services_UsersService_TestSuite) TestFillUserFromEditUserDTO() {
 	assert.Empty(suite.T(), user.CreatedAt)
 }
 
-func Test_Services_UsersService_TestSuite(t *testing.T) {
-	suite.Run(t, new(Services_UsersService_TestSuite))
+func TestServicesUsersServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(ServicesUsersServiceTestSuite))
 }

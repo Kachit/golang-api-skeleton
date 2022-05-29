@@ -10,21 +10,21 @@ import (
 	"testing"
 )
 
-type Transformers_Factory_TestSuite struct {
+type TransformersFactoryTestSuite struct {
 	suite.Suite
 	fractal  *fractal.Manager
 	hashIds  *infrastructure.HashIds
 	testable *Factory
 }
 
-func (suite *Transformers_Factory_TestSuite) SetupTest() {
+func (suite *TransformersFactoryTestSuite) SetupTest() {
 	cfg, _ := testable.NewConfigMock()
 	suite.fractal = infrastructure.NewFractalManager()
 	suite.hashIds = infrastructure.NewHashIds(cfg)
 	suite.testable = NewTransformersFactory(suite.fractal, suite.hashIds)
 }
 
-func (suite *Transformers_Factory_TestSuite) TestMapUsersResourceItem() {
+func (suite *TransformersFactoryTestSuite) TestMapUsersResourceItem() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := suite.testable.MapUsersResourceItem(user)
 	resultMap := result.(map[string]interface{})
@@ -34,7 +34,7 @@ func (suite *Transformers_Factory_TestSuite) TestMapUsersResourceItem() {
 	assert.Equal(suite.T(), user.Email, resultMap["email"])
 }
 
-func (suite *Transformers_Factory_TestSuite) TestMapUsersResourceCollection() {
+func (suite *TransformersFactoryTestSuite) TestMapUsersResourceCollection() {
 	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := suite.testable.MapUsersResourceCollection([]*models.User{user})
 	resultMap := result.([]interface{})
@@ -45,6 +45,6 @@ func (suite *Transformers_Factory_TestSuite) TestMapUsersResourceCollection() {
 	assert.Equal(suite.T(), user.Email, resultMapEl["email"])
 }
 
-func Test_Transformers_Factory_TestSuite(t *testing.T) {
-	suite.Run(t, new(Transformers_Factory_TestSuite))
+func TestTransformersFactoryTestSuite(t *testing.T) {
+	suite.Run(t, new(TransformersFactoryTestSuite))
 }

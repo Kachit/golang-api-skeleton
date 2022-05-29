@@ -4,94 +4,95 @@ import (
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func Test_DTO_BindCreateUserDTOValidFullFilled(t *testing.T) {
+type DTOUsersTestSuite struct {
+	suite.Suite
+	gin *gin.Context
+}
+
+func (suite *DTOUsersTestSuite) SetupTest() {
 	w := httptest.NewRecorder()
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
+	suite.gin = c
+}
+
+func (suite *DTOUsersTestSuite) TestBindCreateUserDTOValidFullFilled() {
 	jsonStr := `{"name": "Name", "email": "foo@bar.baz", "password": "pwd"}`
-	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	obj, err := BindCreateUserDTO(c)
-	assert.NoError(t, err)
-	assert.Equal(t, "Name", obj.Name)
-	assert.Equal(t, "foo@bar.baz", obj.Email)
-	assert.Equal(t, "pwd", obj.Password)
+	suite.gin.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	obj, err := BindCreateUserDTO(suite.gin)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "Name", obj.Name)
+	assert.Equal(suite.T(), "foo@bar.baz", obj.Email)
+	assert.Equal(suite.T(), "pwd", obj.Password)
 }
 
-func Test_DTO_BindCreateUserDTOInvalidEmptyName(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindCreateUserDTOInvalidEmptyName() {
 	jsonStr := `{"email": "foo@bar.baz", "password": "pwd"}`
-	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	_, err := BindCreateUserDTO(c)
-	assert.Error(t, err)
-	assert.Equal(t, "Key: 'CreateUserDTO.Name' Error:Field validation for 'Name' failed on the 'required' tag", err.Error())
+	suite.gin.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindCreateUserDTO(suite.gin)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "Key: 'CreateUserDTO.Name' Error:Field validation for 'Name' failed on the 'required' tag", err.Error())
 }
 
-func Test_DTO_BindCreateUserDTOInvalidEmptyEmail(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindCreateUserDTOInvalidEmptyEmail() {
 	jsonStr := `{"name": "Name ", "password": "pwd "}`
-	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	_, err := BindCreateUserDTO(c)
-	assert.Error(t, err)
-	assert.Equal(t, "Key: 'CreateUserDTO.Email' Error:Field validation for 'Email' failed on the 'required' tag", err.Error())
+	suite.gin.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindCreateUserDTO(suite.gin)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "Key: 'CreateUserDTO.Email' Error:Field validation for 'Email' failed on the 'required' tag", err.Error())
 }
 
-func Test_DTO_BindCreateUserDTOInvalidWrongEmail(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindCreateUserDTOInvalidWrongEmail() {
 	jsonStr := `{"name": "Name ", "password": "pwd ", "email": "foo"}`
-	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	_, err := BindCreateUserDTO(c)
-	assert.Error(t, err)
-	assert.Equal(t, "Key: 'CreateUserDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag", err.Error())
+	suite.gin.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindCreateUserDTO(suite.gin)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "Key: 'CreateUserDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag", err.Error())
 }
 
-func Test_DTO_BindCreateUserDTOInvalidEmptyPassword(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindCreateUserDTOInvalidEmptyPassword() {
 	jsonStr := `{"name": "Name ", "email": "foo@bar.baz"}`
-	c.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	_, err := BindCreateUserDTO(c)
-	assert.Error(t, err)
-	assert.Equal(t, "Key: 'CreateUserDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag", err.Error())
+	suite.gin.Request, _ = http.NewRequest("POST", "/v1/users", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindCreateUserDTO(suite.gin)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "Key: 'CreateUserDTO.Password' Error:Field validation for 'Password' failed on the 'required' tag", err.Error())
 }
 
-func Test_DTO_BindEditUserDTOValidFullFilled(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindEditUserDTOValidFullFilled() {
 	jsonStr := `{"name": "Name", "email": "foo@bar.baz"}`
-	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	obj, err := BindEditUserDTO(c)
-	assert.NoError(t, err)
-	assert.Equal(t, "Name", obj.Name)
-	assert.Equal(t, "foo@bar.baz", obj.Email)
+	suite.gin.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindEditUserDTO(suite.gin)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "Name", result.Name)
+	assert.Equal(suite.T(), "foo@bar.baz", result.Email)
 }
 
-func Test_DTO_BindEditUserDTOInvalidWrongEmail(t *testing.T) {
-	w := httptest.NewRecorder()
-	gin.SetMode(gin.ReleaseMode)
-	c, _ := gin.CreateTestContext(w)
+func (suite *DTOUsersTestSuite) TestBindEditUserDTOInvalidWrongEmail() {
 	jsonStr := `{"name": "Name ", "email": "foo"}`
-	c.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
-	c.Request.Header.Add("Content-Type", gin.MIMEJSON)
-	_, err := BindEditUserDTO(c)
-	assert.Error(t, err)
-	assert.Equal(t, "Key: 'EditUserDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag", err.Error())
+	suite.gin.Request, _ = http.NewRequest("PUT", "/v1/users/1", bytes.NewBufferString(jsonStr))
+	suite.gin.Request.Header.Add("Content-Type", gin.MIMEJSON)
+	result, err := BindEditUserDTO(suite.gin)
+	assert.Nil(suite.T(), result)
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), "Key: 'EditUserDTO.Email' Error:Field validation for 'Email' failed on the 'email' tag", err.Error())
+}
+
+func TestDTOUsersTestSuite(t *testing.T) {
+	suite.Run(t, new(DTOUsersTestSuite))
 }
