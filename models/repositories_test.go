@@ -10,27 +10,27 @@ import (
 	"testing"
 )
 
-type ModelsRepositoriesRepositoriesFactoryTestSuite struct {
+type ModelsRepositoriesFactoryTestSuite struct {
 	suite.Suite
 	db       *gorm.DB
 	mock     sqlmock.Sqlmock
 	testable *RepositoriesFactory
 }
 
-func (suite *ModelsRepositoriesRepositoriesFactoryTestSuite) SetupTest() {
+func (suite *ModelsRepositoriesFactoryTestSuite) SetupTest() {
 	db, mock := testable.GetDatabaseMock()
 	suite.db = db
 	suite.mock = mock
 	suite.testable = NewRepositoriesFactory(db)
 }
 
-func (suite *ModelsRepositoriesRepositoriesFactoryTestSuite) TestGetUsersRepository() {
+func (suite *ModelsRepositoriesFactoryTestSuite) TestGetUsersRepository() {
 	result := suite.testable.GetUsersRepository()
 	assert.NotEmpty(suite.T(), result)
 }
 
-func TestModelsRepositoriesRepositoriesFactoryTestSuite(t *testing.T) {
-	suite.Run(t, new(ModelsRepositoriesRepositoriesFactoryTestSuite))
+func TestModelsRepositoriesFactoryTestSuite(t *testing.T) {
+	suite.Run(t, new(ModelsRepositoriesFactoryTestSuite))
 }
 
 type ModelsRepositoriesUsersRepositoryTestSuite struct {

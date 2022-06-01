@@ -110,9 +110,9 @@ func (s *ServerAPICommand) RunServer() error {
 		}
 	}
 
-	apiRoutesPrivate := router.Group("/v1", middlewareFactory.BuildTokenAuthMiddleware())
+	apiRoutesProtected := router.Group("/v1", middlewareFactory.BuildTokenAuthMiddleware())
 	{
-		users := apiRoutesPrivate.Group("/users")
+		users := apiRoutesProtected.Group("/users")
 		{
 			users.GET("", usersApi.GetList)
 			users.GET("/:id", usersApi.GetById)
