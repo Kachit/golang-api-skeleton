@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - 8080:8080
+      - "8080:8080"
     restart: unless-stopped
     expose:
       - 8080
@@ -17,7 +17,7 @@ services:
   db:
     image: postgres:latest
     ports:
-      - 54335:5432
+      - "54335:5432"
     restart: unless-stopped
     container_name: skeleton_db
     volumes:
