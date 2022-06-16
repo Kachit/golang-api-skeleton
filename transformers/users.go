@@ -7,11 +7,11 @@ import (
 )
 
 func NewUsersTransformer(hashIds *infrastructure.HashIds) *UsersTransformer {
-	return &UsersTransformer{&fractal.BaseTransformer{}, hashIds}
+	return &UsersTransformer{fractal.BaseTransformer{}, hashIds}
 }
 
 type UsersTransformer struct {
-	*fractal.BaseTransformer
+	fractal.BaseTransformer
 	hashIds *infrastructure.HashIds
 }
 
