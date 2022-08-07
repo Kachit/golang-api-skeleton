@@ -2,7 +2,7 @@ app:
   port: 8080
   debug: true
 
-crypto:
+crypt:
   cost: 10
 
 hashids:

@@ -12,7 +12,7 @@ import (
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
 	Auth     AuthConfig     `mapstructure:"auth"`
-	Crypto   CryptoConfig   `mapstructure:"crypto"`
+	Crypt    CryptoConfig   `mapstructure:"crypt"`
 	HashIds  HashIdsConfig  `mapstructure:"hashids"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Logger   LoggerConfig   `mapstructure:"logger"`

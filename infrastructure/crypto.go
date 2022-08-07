@@ -11,7 +11,7 @@ type PasswordGenerator interface {
 }
 
 func NewPasswordGenerator(config *config.Config) PasswordGenerator {
-	return &PasswordGeneratorBCrypt{config.Crypto.Cost}
+	return &PasswordGeneratorBCrypt{config.Crypt.Cost}
 }
 
 type PasswordGeneratorBCrypt struct {
