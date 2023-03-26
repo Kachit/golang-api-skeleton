@@ -19,7 +19,7 @@
 | **database:migrations:rollback** | Rollback migrations | manually |
 | **database:seeders:seed** | Seed dev data to DB | manually |
 | **database:seeders:clear** | Clear dev data | manually |
-| **server-api:start** | API WebServer launch | manually |
+| **app:start** | API WebServer launch | manually |
 
 ### Launch
 * **./golang-api-skeleton {command}** - simple launch

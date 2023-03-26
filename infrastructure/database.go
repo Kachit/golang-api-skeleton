@@ -19,7 +19,8 @@ func NewDatabase(config *Config) (*gorm.DB, error) {
 		DSN: config.GetDatabaseDsn(),
 		//PreferSimpleProtocol: true, // disables implicit prepared statement usage
 	}), &gorm.Config{
-		Logger: logger.Default.LogMode(logMode),
+		Logger:                 logger.Default.LogMode(logMode),
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		return nil, err

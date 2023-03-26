@@ -1,22 +1,31 @@
 package main
 
 import (
-	"github.com/kachit/golang-api-skeleton/commands"
-	"github.com/mitchellh/cli"
+	"github.com/kachit/golang-api-skeleton/commands/application"
+	"github.com/kachit/golang-api-skeleton/commands/database"
+	"github.com/kachit/golang-api-skeleton/commands/develop"
+	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 )
 
 func main() {
-	c := cli.NewCLI("golang-api-skeleton", "1.0.0")
-	c.Args = os.Args[1:]
-	ui := &cli.BasicUi{Writer: os.Stdout, ErrorWriter: os.Stderr}
-
-	c.Commands = commands.GetCmds(ui)
-
-	exitStatus, err := c.Run()
-	if err != nil {
-		log.Println(err)
+	app := &cli.App{
+		Name: "golang-api-skeleton",
+		Commands: []*cli.Command{
+			//database
+			database.NewDatabaseMigrateCommand(),
+			database.NewDatabaseRollbackCommand(),
+			database.NewDatabaseSeedCommand(),
+			database.NewDatabaseClearCommand(),
+			//develop
+			develop.NewDevelopTestCommand(),
+			//application
+			application.NewApplicationStartCommand(),
+		},
 	}
-	os.Exit(exitStatus)
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }

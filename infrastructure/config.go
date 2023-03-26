@@ -46,7 +46,7 @@ type DatabaseConfig struct {
 	Password           string
 	MaxConnections     int    `mapstructure:"max_connections"`
 	MaxIdleConnections int    `mapstructure:"max_idle_connections"`
-	SslMode            string `mapstructure:"sslmode"`
+	SslMode            string `mapstructure:"ssl_mode"`
 }
 
 type LoggerConfig struct {

@@ -17,6 +17,7 @@ require (
 	github.com/speps/go-hashids/v2 v2.0.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.1
+	github.com/urfave/cli/v2 v2.24.4
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 	gorm.io/driver/postgres v1.3.5

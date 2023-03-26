@@ -27,4 +27,4 @@ database:
   password: 12345
   max_connections: 10
   max_idle_connections: 10
-  sslmode: disable
+  ssl_mode: disable

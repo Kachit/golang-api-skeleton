@@ -1,54 +1,23 @@
-package commands_develop
+package develop
 
 import (
-	"flag"
 	"fmt"
-	"github.com/mitchellh/cli"
-	"log"
-	"strings"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
+	"github.com/urfave/cli/v2"
 )
 
-func DevelopTestCmd(ui cli.Ui) (cli.Command, error) {
-	s := &DevelopTestCommand{}
-	s.init()
-	return s, nil
-}
-
-type DevelopTestCommand struct {
-	flags      *flag.FlagSet
-	configPath string
-	helpText   string
-}
-
-func (s *DevelopTestCommand) init() {
-	s.flags = flag.NewFlagSet("", flag.ContinueOnError)
-	s.flags.StringVar(&s.configPath, "config", "config.yml", "Yml config file path")
-	//s.helpText = flags.Usage(s.help(), s.flags)
-}
-
-func (s *DevelopTestCommand) help() string {
-	return `
-Usage: [options]
-
-	Develop test command
-`
-}
-
-func (s *DevelopTestCommand) Help() string {
-	return s.helpText
-}
-
-func (s *DevelopTestCommand) Synopsis() string {
-	return DevelopTest
-}
-
-func (s *DevelopTestCommand) Run(args []string) int {
-	if err := s.flags.Parse(args); err != nil {
-		if !strings.Contains(err.Error(), "help requested") {
-			log.Printf("error parsing flags: %v", err)
-		}
-		return 1
+func NewDevelopTestCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "develop:test",
+		Usage: "Test drive command",
+		Flags: []cli.Flag{},
+		Action: func(cCtx *cli.Context) error {
+			config, err := infrastructure.NewConfig("config.yml")
+			if err != nil {
+				return err
+			}
+			fmt.Println(config)
+			return nil
+		},
 	}
-	fmt.Println("Command launch " + s.Synopsis())
-	return 0
 }
