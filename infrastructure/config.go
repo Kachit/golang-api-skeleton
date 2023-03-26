@@ -1,4 +1,4 @@
-package config
+package infrastructure
 
 import (
 	"fmt"
@@ -96,4 +96,8 @@ func NewConfig(configPath string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func NewConfigMock() (*Config, error) {
+	return NewConfig("../config.yml")
 }

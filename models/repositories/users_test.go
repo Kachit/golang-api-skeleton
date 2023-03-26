@@ -1,7 +1,8 @@
-package models
+package repositories
 
 import (
-	"github.com/kachit/golang-api-skeleton/testable"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
@@ -9,29 +10,6 @@ import (
 	"regexp"
 	"testing"
 )
-
-type ModelsRepositoriesFactoryTestSuite struct {
-	suite.Suite
-	db       *gorm.DB
-	mock     sqlmock.Sqlmock
-	testable *RepositoriesFactory
-}
-
-func (suite *ModelsRepositoriesFactoryTestSuite) SetupTest() {
-	db, mock := testable.GetDatabaseMock()
-	suite.db = db
-	suite.mock = mock
-	suite.testable = NewRepositoriesFactory(db)
-}
-
-func (suite *ModelsRepositoriesFactoryTestSuite) TestGetUsersRepository() {
-	result := suite.testable.GetUsersRepository()
-	assert.NotEmpty(suite.T(), result)
-}
-
-func TestModelsRepositoriesFactoryTestSuite(t *testing.T) {
-	suite.Run(t, new(ModelsRepositoriesFactoryTestSuite))
-}
 
 type ModelsRepositoriesUsersRepositoryTestSuite struct {
 	suite.Suite
@@ -41,10 +19,10 @@ type ModelsRepositoriesUsersRepositoryTestSuite struct {
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) SetupTest() {
-	db, mock := testable.GetDatabaseMock()
+	db, mock := infrastructure.GetDatabaseMock()
 	suite.db = db
 	suite.mock = mock
-	suite.testable = &UsersRepository{db: db}
+	suite.testable = NewUsersRepository(db)
 	mock.MatchExpectationsInOrder(false)
 }
 
@@ -77,7 +55,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdError() {
 	result, err := suite.testable.GetById(123)
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetById: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetById: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterSuccess() {
@@ -98,7 +76,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterErro
 	result, err := suite.testable.GetListByFilter()
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterSuccess() {
@@ -151,7 +129,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailError() {
 	result, err := suite.testable.GetByEmail("foo@bar.baz")
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetByEmail: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetByEmail: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailSuccess() {
@@ -178,7 +156,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailError()
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateSuccess() {
 	suite.mock.ExpectBegin()
 
-	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
 
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
@@ -195,7 +173,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateSuccess() {
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateError() {
 	suite.mock.ExpectBegin()
 
-	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
 
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
@@ -205,14 +183,14 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateError() {
 
 	err := suite.testable.Create(user)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditSuccess() {
 	suite.mock.ExpectBegin()
 
-	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
+	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
 
 	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
@@ -228,7 +206,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditSuccess() {
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditError() {
 	suite.mock.ExpectBegin()
 
-	user := &User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
+	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
 
 	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).

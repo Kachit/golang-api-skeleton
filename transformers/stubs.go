@@ -1,4 +1,4 @@
-package testable
+package transformers
 
 type StubUser struct {
 	Id       uint64 `json:"id"`

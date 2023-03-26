@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"encoding/json"
 	"github.com/int128/slack"
-	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/lajosbencz/glo"
 	"strings"
 	"time"
@@ -91,20 +90,20 @@ func (f *MattermostFormatter) Format(time time.Time, level glo.Level, line strin
 	return r.Replace(f.format)
 }
 
-func NewLogger(cfg *config.Config) Logger {
+func NewLogger(cfg *Config) Logger {
 	adapterGlo := NewLoggerAdapterGlo(&cfg.Logger)
 	log := &LoggerAdapterGlo{logger: adapterGlo}
 	return log
 }
 
-func NewLoggerAdapterGlo(cfg *config.LoggerConfig) glo.Facility {
+func NewLoggerAdapterGlo(cfg *LoggerConfig) glo.Facility {
 	mh := NewMattermostHandler(&cfg.Mattermost)
 	log := glo.NewStdFacility()
 	log.PushHandler(mh)
 	return log
 }
 
-func NewMattermostHandler(cfg *config.LoggerAdapterMattermostConfig) *MattermostHandler {
+func NewMattermostHandler(cfg *LoggerAdapterMattermostConfig) *MattermostHandler {
 	c := &MattermostHandlerConfig{Username: cfg.Username}
 	client := newMattermostClient(cfg)
 	filter := glo.NewFilterLevel(glo.Warning)
@@ -114,7 +113,7 @@ func NewMattermostHandler(cfg *config.LoggerAdapterMattermostConfig) *Mattermost
 	return h
 }
 
-func newMattermostClient(cfg *config.LoggerAdapterMattermostConfig) *slack.Client {
+func newMattermostClient(cfg *LoggerAdapterMattermostConfig) *slack.Client {
 	client := &slack.Client{WebhookURL: cfg.WebhookUrl}
 	return client
 }
@@ -165,4 +164,52 @@ func (h *MattermostHandler) ClearFilters() glo.Handler {
 func (h *MattermostHandler) PushFilter(filter glo.Filter) glo.Handler {
 	h.filters = append(h.filters, filter)
 	return h
+}
+
+type LoggerMock struct {
+	Level  glo.Level
+	Msg    string
+	Params interface{}
+}
+
+func (l *LoggerMock) write(level glo.Level, msg string, params ...interface{}) {
+	l.Level = level
+	l.Msg = msg
+	l.Params = params
+}
+
+func (l *LoggerMock) Debug(msg string, params ...interface{}) {
+	l.write(glo.Debug, msg, params)
+}
+
+func (l *LoggerMock) Info(msg string, params ...interface{}) {
+	l.write(glo.Info, msg, params)
+}
+
+func (l *LoggerMock) Notice(msg string, params ...interface{}) {
+	l.write(glo.Notice, msg, params)
+}
+
+func (l *LoggerMock) Warning(msg string, params ...interface{}) {
+	l.write(glo.Warning, msg, params)
+}
+
+func (l *LoggerMock) Error(msg string, params ...interface{}) {
+	l.write(glo.Error, msg, params)
+}
+
+func (l *LoggerMock) Critical(msg string, params ...interface{}) {
+	l.write(glo.Critical, msg, params)
+}
+
+func (l *LoggerMock) Alert(msg string, params ...interface{}) {
+	l.write(glo.Alert, msg, params)
+}
+
+func (l *LoggerMock) Emergency(msg string, params ...interface{}) {
+	l.write(glo.Emergency, msg, params)
+}
+
+func GetLoggerMock() *LoggerMock {
+	return &LoggerMock{}
 }

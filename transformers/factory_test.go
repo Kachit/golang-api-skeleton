@@ -3,8 +3,7 @@ package transformers
 import (
 	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/models"
-	"github.com/kachit/golang-api-skeleton/testable"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -18,14 +17,14 @@ type TransformersFactoryTestSuite struct {
 }
 
 func (suite *TransformersFactoryTestSuite) SetupTest() {
-	cfg, _ := testable.NewConfigMock()
+	cfg, _ := infrastructure.NewConfigMock()
 	suite.fractal = infrastructure.NewFractalManager()
 	suite.hashIds = infrastructure.NewHashIds(cfg)
 	suite.testable = NewTransformersFactory(suite.fractal, suite.hashIds)
 }
 
 func (suite *TransformersFactoryTestSuite) TestMapUsersResourceItem() {
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result, err := suite.testable.MapUsersResourceItem(user)
 	resultMap := result.(map[string]interface{})
 	assert.NoError(suite.T(), err)
@@ -35,8 +34,8 @@ func (suite *TransformersFactoryTestSuite) TestMapUsersResourceItem() {
 }
 
 func (suite *TransformersFactoryTestSuite) TestMapUsersResourceCollection() {
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
-	result, err := suite.testable.MapUsersResourceCollection([]*models.User{user})
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	result, err := suite.testable.MapUsersResourceCollection([]*entities.User{user})
 	resultMap := result.([]interface{})
 	resultMapEl := resultMap[0].(map[string]interface{})
 	assert.NoError(suite.T(), err)

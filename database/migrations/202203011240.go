@@ -2,7 +2,7 @@ package migrations
 
 import (
 	"github.com/go-gormigrate/gormigrate/v2"
-	"github.com/kachit/golang-api-skeleton/models"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -47,7 +47,7 @@ func init() {
 								;`).Error
 		},
 		Rollback: func(tx *gorm.DB) error {
-			return tx.Migrator().DropTable(models.TableUsers)
+			return tx.Migrator().DropTable(entities.TableUsers)
 		},
 	})
 }

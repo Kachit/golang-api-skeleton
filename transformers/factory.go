@@ -3,7 +3,7 @@ package transformers
 import (
 	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/models"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 )
 
 type Factory struct {
@@ -15,7 +15,7 @@ func NewTransformersFactory(fractal *fractal.Manager, hashIds *infrastructure.Ha
 	return &Factory{fractal, hashIds}
 }
 
-func (f *Factory) MapUsersResourceItem(user *models.User) (interface{}, error) {
+func (f *Factory) MapUsersResourceItem(user *entities.User) (interface{}, error) {
 	resource := f.NewUsersResourceItem(user)
 	dataMap, err := f.fractal.CreateData(resource, nil).ToMap()
 	if err != nil {
@@ -24,7 +24,7 @@ func (f *Factory) MapUsersResourceItem(user *models.User) (interface{}, error) {
 	return dataMap["data"], nil
 }
 
-func (f *Factory) MapUsersResourceCollection(users []*models.User) (interface{}, error) {
+func (f *Factory) MapUsersResourceCollection(users []*entities.User) (interface{}, error) {
 	collection := transformUsersToFractal(users)
 	resource := f.NewUsersResourceCollection(collection)
 	dataMap, err := f.fractal.CreateData(resource, nil).ToMap()
@@ -34,7 +34,7 @@ func (f *Factory) MapUsersResourceCollection(users []*models.User) (interface{},
 	return dataMap["data"], nil
 }
 
-func (f *Factory) NewUsersResourceItem(user *models.User) *fractal.Item {
+func (f *Factory) NewUsersResourceItem(user *entities.User) *fractal.Item {
 	return fractal.NewItem(
 		fractal.WithData(user),
 		fractal.WithResourceKey("users"),

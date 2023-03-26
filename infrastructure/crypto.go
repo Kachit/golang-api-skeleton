@@ -1,7 +1,6 @@
 package infrastructure
 
 import (
-	"github.com/kachit/golang-api-skeleton/config"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -10,7 +9,7 @@ type PasswordGenerator interface {
 	CheckPassword(password, hash string) bool
 }
 
-func NewPasswordGenerator(config *config.Config) PasswordGenerator {
+func NewPasswordGenerator(config *Config) PasswordGenerator {
 	return &PasswordGeneratorBCrypt{config.Crypt.Cost}
 }
 

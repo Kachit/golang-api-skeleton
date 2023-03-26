@@ -3,7 +3,7 @@ package transformers
 import (
 	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/models"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 )
 
 func NewUsersTransformer(hashIds *infrastructure.HashIds) *UsersTransformer {
@@ -34,17 +34,17 @@ func (t *UsersTransformer) Transform(data fractal.Any) fractal.M {
 	return result
 }
 
-func (t *UsersTransformer) toUser(data fractal.Any) *models.User {
+func (t *UsersTransformer) toUser(data fractal.Any) *entities.User {
 	switch b := data.(type) {
-	case *models.User:
+	case *entities.User:
 		return b
-	case models.User:
+	case entities.User:
 		return &b
 	}
 	return nil
 }
 
-func transformUsersToFractal(users []*models.User) []fractal.Any {
+func transformUsersToFractal(users []*entities.User) []fractal.Any {
 	var u []fractal.Any
 	for _, user := range users {
 		u = append(u, *user)

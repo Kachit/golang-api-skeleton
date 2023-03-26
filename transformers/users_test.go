@@ -3,8 +3,7 @@ package transformers
 import (
 	"github.com/ibllex/go-fractal"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/models"
-	"github.com/kachit/golang-api-skeleton/testable"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
@@ -19,13 +18,13 @@ type TransformersUsersTransformerTestSuite struct {
 }
 
 func (suite *TransformersUsersTransformerTestSuite) SetupTest() {
-	cfg, _ := testable.NewConfigMock()
+	cfg, _ := infrastructure.NewConfigMock()
 	suite.hashIds = infrastructure.NewHashIds(cfg)
 	suite.testable = NewUsersTransformer(suite.hashIds)
 }
 
 func (suite *TransformersUsersTransformerTestSuite) TestToUserFromStruct() {
-	user := models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.toUser(fractal.Any(user))
 	assert.Equal(suite.T(), user.Id, result.Id)
 	assert.Equal(suite.T(), user.Name, result.Name)
@@ -34,7 +33,7 @@ func (suite *TransformersUsersTransformerTestSuite) TestToUserFromStruct() {
 }
 
 func (suite *TransformersUsersTransformerTestSuite) TestToUserFromPointer() {
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.toUser(fractal.Any(user))
 	assert.Equal(suite.T(), user.Id, result.Id)
 	assert.Equal(suite.T(), user.Name, result.Name)
@@ -47,7 +46,7 @@ func (suite *TransformersUsersTransformerTestSuite) TestTransformUserFull() {
 	modifiedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-02-01 10:10:10")
 	deletedAt, _ := time.Parse("2006-01-02 15:04:05", "2021-03-01 10:10:10")
 	da := gorm.DeletedAt{Time: deletedAt}
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd", CreatedAt: createdAt, ModifiedAt: &modifiedAt, DeletedAt: da}
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd", CreatedAt: createdAt, ModifiedAt: &modifiedAt, DeletedAt: da}
 	result := suite.testable.Transform(user)
 	assert.Equal(suite.T(), "ngB0NV05ev", result["id"])
 	assert.Equal(suite.T(), user.Name, result["name"])
@@ -58,7 +57,7 @@ func (suite *TransformersUsersTransformerTestSuite) TestTransformUserFull() {
 }
 
 func (suite *TransformersUsersTransformerTestSuite) TestTransformUserSimple() {
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.Transform(user)
 	assert.Equal(suite.T(), "ngB0NV05ev", result["id"])
 	assert.Equal(suite.T(), user.Name, result["name"])
@@ -66,15 +65,15 @@ func (suite *TransformersUsersTransformerTestSuite) TestTransformUserSimple() {
 }
 
 func (suite *TransformersUsersTransformerTestSuite) TestTransformAnotherStruct() {
-	user := &testable.StubUser{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &StubUser{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	result := suite.testable.Transform(user)
 	assert.Empty(suite.T(), result)
 }
 
 func (suite *TransformersUsersTransformerTestSuite) TestTransformUsersToFractal() {
-	users := []*models.User{{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}}
+	users := []*entities.User{{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}}
 	result := transformUsersToFractal(users)
-	fractalUser := result[0].(models.User)
+	fractalUser := result[0].(entities.User)
 	assert.Equal(suite.T(), users[0].Id, fractalUser.Id)
 	assert.Equal(suite.T(), users[0].Name, fractalUser.Name)
 	assert.Equal(suite.T(), users[0].Email, fractalUser.Email)

@@ -1,14 +1,14 @@
 package infrastructure
 
 import (
-	"github.com/kachit/golang-api-skeleton/config"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"time"
 )
 
-func NewDatabase(config *config.Config) (*gorm.DB, error) {
+func NewDatabase(config *Config) (*gorm.DB, error) {
 	//options
 	logMode := logger.Silent
 	//debug options override
@@ -37,4 +37,19 @@ func NewDatabase(config *config.Config) (*gorm.DB, error) {
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
 	sqlDB.SetConnMaxLifetime(time.Minute)
 	return db, nil
+}
+
+func GetDatabaseMock() (*gorm.DB, sqlmock.Sqlmock) {
+	mockDB, mock, _ := sqlmock.New()
+	logMode := logger.Silent
+
+	dialector := postgres.New(postgres.Config{
+		DSN:                  "sqlmock_db",
+		DriverName:           "postgres",
+		Conn:                 mockDB,
+		PreferSimpleProtocol: true,
+	})
+
+	db, _ := gorm.Open(dialector, &gorm.Config{Logger: logger.Default.LogMode(logMode)})
+	return db, mock
 }

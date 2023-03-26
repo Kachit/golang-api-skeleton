@@ -3,12 +3,11 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"net/http"
 )
 
-func TokenAuthMiddleware(config *config.AuthConfig, logger infrastructure.Logger) gin.HandlerFunc {
+func TokenAuthMiddleware(config *infrastructure.AuthConfig, logger infrastructure.Logger) gin.HandlerFunc {
 	requiredToken := config.Token
 	tokenHeader := config.Header
 

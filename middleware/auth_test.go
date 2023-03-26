@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kachit/golang-api-skeleton/config"
+	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 
 type MiddlewareTokenAuthMiddlewareTestSuite struct {
 	suite.Suite
-	cfg      *config.AuthConfig
+	cfg      *infrastructure.AuthConfig
 	gin      *gin.Context
 	testable gin.HandlerFunc
 }
@@ -22,7 +22,7 @@ func (suite *MiddlewareTokenAuthMiddlewareTestSuite) SetupTest() {
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	suite.gin = c
-	suite.cfg = &config.AuthConfig{Enabled: true, Header: "X-Auth-Token", Token: "foo"}
+	suite.cfg = &infrastructure.AuthConfig{Enabled: true, Header: "X-Auth-Token", Token: "foo"}
 	suite.testable = TokenAuthMiddleware(suite.cfg, nil)
 }
 

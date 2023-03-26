@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"github.com/kachit/golang-api-skeleton/config"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -10,12 +9,12 @@ import (
 
 type MiddlewareFactorySuite struct {
 	suite.Suite
-	cfg      *config.Config
+	cfg      *infrastructure.Config
 	testable *Factory
 }
 
 func (suite *MiddlewareFactorySuite) SetupTest() {
-	suite.cfg = &config.Config{Auth: config.AuthConfig{Header: "X-Auth-Token"}}
+	suite.cfg = &infrastructure.Config{Auth: infrastructure.AuthConfig{Header: "X-Auth-Token"}}
 	suite.testable = NewMiddlewareFactory(&infrastructure.Container{Config: suite.cfg})
 }
 

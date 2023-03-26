@@ -3,8 +3,7 @@ package services
 import (
 	"github.com/kachit/golang-api-skeleton/dto"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
-	"github.com/kachit/golang-api-skeleton/models"
-	"github.com/kachit/golang-api-skeleton/testable"
+	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
@@ -21,13 +20,12 @@ type ServicesUsersServiceTestSuite struct {
 }
 
 func (suite *ServicesUsersServiceTestSuite) SetupTest() {
-	cfg, _ := testable.NewConfigMock()
-	db, mock := testable.GetDatabaseMock()
-	rf := models.NewRepositoriesFactory(db)
+	cfg, _ := infrastructure.NewConfigMock()
+	db, mock := infrastructure.GetDatabaseMock()
 	suite.db = db
 	suite.mock = mock
 	suite.testable = NewUsersService(&infrastructure.Container{
-		RF: rf,
+		DB: db,
 		PG: infrastructure.NewPasswordGenerator(cfg),
 	})
 	mock.MatchExpectationsInOrder(false)
@@ -51,7 +49,7 @@ func (suite *ServicesUsersServiceTestSuite) TestGetListByFilterError() {
 	result, err := suite.testable.GetListByFilter()
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersService.GetListByFilter: UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 }
 
 func (suite *ServicesUsersServiceTestSuite) TestCountByFilterSuccess() {
@@ -145,7 +143,7 @@ func (suite *ServicesUsersServiceTestSuite) TestCreateError() {
 	user, err := suite.testable.Create(ud)
 	assert.Error(suite.T(), err)
 	assert.Nil(suite.T(), user)
-	assert.Equal(suite.T(), `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *models.User`, err.Error())
+	assert.Equal(suite.T(), `UsersService.Create: UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
 }
 
 func (suite *ServicesUsersServiceTestSuite) TestCreateNotUniqueEmail() {
@@ -231,7 +229,7 @@ func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailError() {
 }
 
 func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailSameUserValid() {
-	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo@bar.baz"})
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &entities.User{Email: "foo@bar.baz"})
 	assert.NoError(suite.T(), err)
 }
 
@@ -240,7 +238,7 @@ func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailNotSameUserInv
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(1))
 
-	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &models.User{Email: "foo1@bar.baz"})
+	err := suite.testable.checkIsUniqueEmail("foo@bar.baz", &entities.User{Email: "foo1@bar.baz"})
 	assert.Error(suite.T(), err)
 	assert.Equal(suite.T(), "not unique user email", err.Error())
 }
@@ -258,7 +256,7 @@ func (suite *ServicesUsersServiceTestSuite) TestBuildUserFromCreateUserDTO() {
 }
 
 func (suite *ServicesUsersServiceTestSuite) TestFillUserFromEditUserDTO() {
-	user := &models.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
+	user := &entities.User{Id: 1, Name: "name", Email: "foo@bar.baz", Password: "pwd"}
 	userDto := &dto.EditUserDTO{Name: "name1", Email: "foo1@bar.baz"}
 	user, err := suite.testable.fillUserFromEditUserDTO(user, userDto)
 	assert.NoError(suite.T(), err)
