@@ -37,7 +37,7 @@ func (suite *MiddlewareFactorySuite) TestBuildCorsMiddlewareConfig() {
 	result := suite.testable.buildCorsMiddlewareConfig()
 	assert.True(suite.T(), result.AllowCredentials)
 	assert.True(suite.T(), result.AllowAllOrigins)
-	assert.Equal(suite.T(), []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"}, result.AllowMethods)
+	assert.Equal(suite.T(), []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}, result.AllowMethods)
 	assert.Equal(suite.T(), []string{"Origin", "Content-Length", "Content-Type", "Accept", "X-Requested-With", "X-Auth-Token"}, result.AllowHeaders)
 }
 

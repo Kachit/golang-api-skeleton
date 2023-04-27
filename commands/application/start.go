@@ -62,23 +62,10 @@ func NewApplicationStartCommand() *cli.Command {
 			}
 
 			apiRoutes := router.Group("/")
-			{
-				shared := apiRoutes.Group("/shared")
-				{
-					shared.GET("/swagger", docsApi.GetSwagger)
-				}
-			}
+			docsApi.Routes(apiRoutes)
 
 			apiRoutesProtected := router.Group("/v1", middlewareFactory.BuildTokenAuthMiddleware())
-			{
-				users := apiRoutesProtected.Group("/users")
-				{
-					users.GET("", usersApi.GetList)
-					users.GET("/:id", usersApi.GetById)
-					users.POST("", usersApi.Create)
-					users.PUT("/:id", usersApi.Edit)
-				}
-			}
+			usersApi.Routes(apiRoutesProtected)
 
 			srv := &http.Server{
 				Addr:    cfg.GetAppPort(),

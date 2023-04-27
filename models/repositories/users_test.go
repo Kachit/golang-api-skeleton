@@ -216,7 +216,7 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditError() {
 
 	err := suite.testable.Edit(user)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected`, err.Error())
 	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 

@@ -27,6 +27,14 @@ func NewUsersAPIResource(container *infrastructure.Container) *UsersAPIResource 
 	}
 }
 
+func (a *UsersAPIResource) Routes(group *gin.RouterGroup) {
+	users := group.Group("/users")
+	users.GET("", a.GetList)
+	users.GET("/:id", a.GetById)
+	users.POST("", a.Create)
+	users.PUT("/:id", a.Edit)
+}
+
 func (a *UsersAPIResource) GetList(c *gin.Context) {
 	collection, err := a.us.GetListByFilter()
 	if err != nil {

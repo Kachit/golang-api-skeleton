@@ -205,7 +205,7 @@ func (suite *ServicesUsersServiceTestSuite) TestEditError() {
 	user, err := suite.testable.Edit(1, ud)
 	assert.Error(suite.T(), err)
 	assert.Nil(suite.T(), user)
-	assert.Equal(suite.T(), `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected; invalid transaction`, err.Error())
+	assert.Equal(suite.T(), `UsersService.Edit: UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected`, err.Error())
 }
 
 func (suite *ServicesUsersServiceTestSuite) TestCheckIsUniqueEmailInvalid() {

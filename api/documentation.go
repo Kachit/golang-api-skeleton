@@ -11,6 +11,13 @@ import (
 type DocumentationResource struct {
 }
 
+func (a *DocumentationResource) Routes(group *gin.RouterGroup) {
+	shared := group.Group("/shared")
+	{
+		shared.GET("/swagger", a.GetSwagger)
+	}
+}
+
 func NewDocumentationResource() *DocumentationResource {
 	return &DocumentationResource{}
 }
