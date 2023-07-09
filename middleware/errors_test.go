@@ -24,7 +24,7 @@ func (suite *MiddlewareHttpErrorHandlerMiddlewareTestSuite) SetupTest() {
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	suite.gin = c
-	suite.logger = infrastructure.GetLoggerMock()
+	suite.logger = infrastructure.NewLoggerMock()
 	suite.testable = HttpErrorHandlerMiddleware(suite.logger)
 }
 

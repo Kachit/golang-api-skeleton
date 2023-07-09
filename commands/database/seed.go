@@ -34,7 +34,7 @@ func NewDatabaseSeedCommand() *cli.Command {
 			if users > 0 {
 				cfg := gorm_seeder.SeederConfiguration{Rows: int(users)}
 				usersSeeder := seeders.NewUsersSeeder(cfg, container.PG)
-				seedersStack.AddSeeder(&usersSeeder)
+				seedersStack.AddSeeder(usersSeeder)
 			}
 			err = seedersStack.Seed()
 			if err != nil {

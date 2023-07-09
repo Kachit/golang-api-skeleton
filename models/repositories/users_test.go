@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ type ModelsRepositoriesUsersRepositoryTestSuite struct {
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) SetupTest() {
-	db, mock := infrastructure.GetDatabaseMock()
+	db, mock := infrastructure.NewDatabaseMock()
 	suite.db = db
 	suite.mock = mock
 	suite.testable = NewUsersRepository(db)
@@ -44,18 +45,18 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdNotFound() {
 	result, err := suite.testable.GetById(123)
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "UsersRepository.GetById: record not found", err.Error())
+	assert.Equal(suite.T(), "UsersRepository.GetById: User not found", err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByIdError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE "users"."id" = $1`)).
-		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	result, err := suite.testable.GetById(123)
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetById: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetById: SQLSTATE 01000`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterSuccess() {
@@ -71,12 +72,12 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterSucc
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetListByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	result, err := suite.testable.GetListByFilter()
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetListByFilter: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetListByFilter: SQLSTATE 01000`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterSuccess() {
@@ -92,12 +93,12 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterSucces
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByFilterError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	result, err := suite.testable.CountByFilter()
 	assert.Empty(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.CountByFilter: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.CountByFilter: SQLSTATE 01000`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailFound() {
@@ -118,18 +119,18 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailNotFound(
 	result, err := suite.testable.GetByEmail("foo@bar.baz")
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), "UsersRepository.GetByEmail: record not found", err.Error())
+	assert.Equal(suite.T(), "UsersRepository.GetByEmail: User not found", err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestGetByEmailError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL`)).
-		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	result, err := suite.testable.GetByEmail("foo@bar.baz")
 	assert.Nil(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.GetByEmail: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.GetByEmail: SQLSTATE 01000`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailSuccess() {
@@ -145,24 +146,21 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailSuccess
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCountByEmailError() {
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT count(*) FROM "users" WHERE email = $1`)).
-		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow("foo"))
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	result, err := suite.testable.CountByEmail("foo@bar.baz")
 	assert.Empty(suite.T(), result)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.CountByEmail: sql: Scan error on column index 0, name "count(*)": converting driver.Value type string ("foo") to a int64: invalid syntax`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.CountByEmail: SQLSTATE 01000`, err.Error())
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateSuccess() {
-	suite.mock.ExpectBegin()
-
-	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
+	user := entities.NewUserEntityStub(nil)
+	user.Id = 0
 
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-
-	suite.mock.ExpectCommit()
 
 	err := suite.testable.Create(user)
 	assert.NoError(suite.T(), err)
@@ -171,32 +169,25 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateSuccess() {
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestCreateError() {
-	suite.mock.ExpectBegin()
-
-	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd"}
+	user := entities.NewUserEntityStub(nil)
+	user.Id = 0
 
 	suite.mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "users" ("name","email","password","created_at","modified_at","deleted_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"foo"}).AddRow(1))
-
-	suite.mock.ExpectRollback()
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	err := suite.testable.Create(user)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.Create: sql: Scan error on column index 0, name "foo": unsupported Scan, storing driver.Value type int into type *entities.User`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.Create: SQLSTATE 01000`, err.Error())
 	assert.NotEmpty(suite.T(), user.CreatedAt)
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditSuccess() {
-	suite.mock.ExpectBegin()
-
-	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
+	user := entities.NewUserEntityStub(nil)
 
 	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-
-	suite.mock.ExpectCommit()
 
 	err := suite.testable.Edit(user)
 	assert.NoError(suite.T(), err)
@@ -204,19 +195,15 @@ func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditSuccess() {
 }
 
 func (suite *ModelsRepositoriesUsersRepositoryTestSuite) TestEditError() {
-	suite.mock.ExpectBegin()
-
-	user := &entities.User{Name: "foo", Email: "foo@bar.baz", Password: "pwd", Id: 1}
+	user := entities.NewUserEntityStub(nil)
 
 	suite.mock.ExpectExec(regexp.QuoteMeta(
 		`UPDATE "users" SET "name"=$1,"email"=$2,"password"=$3,"created_at"=$4,"modified_at"=$5,"deleted_at"=$6 WHERE "id" = $7`)).
-		WillReturnResult(sqlmock.NewResult(0, 0))
-
-	suite.mock.ExpectCommit()
+		WillReturnError(fmt.Errorf("SQLSTATE 01000"))
 
 	err := suite.testable.Edit(user)
 	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), `UsersRepository.Edit: all expectations were already fulfilled, call to database transaction Begin was not expected`, err.Error())
+	assert.Equal(suite.T(), `UsersRepository.Edit: SQLSTATE 01000`, err.Error())
 	assert.NotEmpty(suite.T(), user.ModifiedAt)
 }
 

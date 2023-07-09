@@ -34,7 +34,7 @@ func NewDatabaseClearCommand() *cli.Command {
 			if confirm {
 				cfg := gormseeder.SeederConfiguration{}
 				usersSeeder := seeders.NewUsersSeeder(cfg, nil)
-				seedersStack.AddSeeder(&usersSeeder)
+				seedersStack.AddSeeder(usersSeeder)
 			}
 			err = seedersStack.Clear()
 			if err != nil {

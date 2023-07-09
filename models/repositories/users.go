@@ -56,7 +56,7 @@ func (r *UsersRepository) GetById(id uint64) (*entities.User, error) {
 		return nil, fmt.Errorf("UsersRepository.GetById: %v", result.Error)
 	}
 	if record.Id == 0 {
-		return nil, fmt.Errorf("UsersRepository.GetById: record not found")
+		return nil, fmt.Errorf("UsersRepository.GetById: User not found")
 	}
 	return &record, nil
 }
@@ -68,7 +68,7 @@ func (r *UsersRepository) GetByEmail(email string) (*entities.User, error) {
 		return nil, fmt.Errorf("UsersRepository.GetByEmail: %v", result.Error)
 	}
 	if record.Id == 0 {
-		return nil, fmt.Errorf("UsersRepository.GetByEmail: record not found")
+		return nil, fmt.Errorf("UsersRepository.GetByEmail: User not found")
 	}
 	return &record, nil
 }
