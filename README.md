@@ -24,3 +24,8 @@
 ### Launch
 * **./golang-api-skeleton {command}** - simple launch
 * **./golang-api-skeleton {command} -config=./config.yml** - launch with args
+
+## Testing ##
+```bash
+go test --coverprofile=coverage.out ./... && go tool cover -func coverage.out && go tool cover --html=coverage.out -o coverage.html
+```
