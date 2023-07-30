@@ -2,11 +2,11 @@ package repositories
 
 import (
 	"fmt"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kachit/golang-api-skeleton/infrastructure"
 	"github.com/kachit/golang-api-skeleton/models/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/gorm"
 	"regexp"
 	"testing"
